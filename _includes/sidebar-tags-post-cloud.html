@@ -1,0 +1,12 @@
+<h3>Post Tags Cloud</h3>
+
+<div class="mobile-hidden">
+
+  {% for tag in page.tags %}
+    <a href="{{ site.baseurl }}/tags/#{{ tag }}">{{ tag }}</a>
+  {% endfor %}
+
+</div>
+
+
+<!-- ref http://liberize.github.io/tech/jekyll-tag-cloud.html -->

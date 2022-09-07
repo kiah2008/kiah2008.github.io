@@ -1,0 +1,7 @@
+{% if jekyll.environment %}
+  {% assign assets_base_url = site.baseurl %}
+{% else %}
+  {% if site.cdn.jsdelivr.enabled %}
+    {% assign assets_base_url = "https://cdn.jsdelivr.net/gh/" | append: site.repository | append: '@' | append: site.repo_branch %}
+  {% endif %}
+{% endif %}

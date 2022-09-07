@@ -1,0 +1,31 @@
+---
+layout: post
+title: sourceinsight延长试用期
+categories: [tools]
+tags: [sourceinsight]
+description: sourceinsight延长试用期
+keywords: source insight, license
+dashang: true
+topmost: false
+mermaid: false
+date:  2022-03-04 21:00:00 +0900
+---
+
+source insight 蛮好用的一个工具,提供个人免费试用,不过时间只有30天. 可以尝试清除data的应用数据,实现延长试用期.
+
+<!-- more -->
+
+
+# 修改sourceinsight4.exe
+
+用16进制编辑器（sublime text）打开sourceinsight4.exe文件，找到**c800 0000 742a 83bc 2408** 这一段，修改74 为 eb。
+
+# 修改license文件
+
+打开 C:\ProgramData\Source Insight\4.0\si4.lic
+将Expiration=”2022-XX-XX”中的2022修改为2050。
+
+注意：过一段时间提示过期后，把Date="2024-01-07 00:00:00"，改成前一天的，又能继续使用。
+
+
+

@@ -1,0 +1,8 @@
+
+{% assign random = site.time | date:"%s" | modulo: site.data.alerts.size %}
+<span class="meta-info">
+    <h2></h2>
+    <span class="octicon" style="height:72px" >
+        {{ site.data.alerts[random].content }}
+    </span>  
+</span>

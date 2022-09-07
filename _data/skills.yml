@@ -1,0 +1,16 @@
+- name: Software Engineer Keywords
+  keywords:
+      - Java
+      - C/C++
+      - Python
+      - Design Patterns
+
+- name: Mobile Developer Keywords
+  keywords:
+      - Android
+      - Linux
+      - Telephony
+      - Camera
+      - Audio
+      - Graphics
+
