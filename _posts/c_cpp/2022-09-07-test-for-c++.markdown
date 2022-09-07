@@ -1,0 +1,24 @@
+---
+layout: post
+title: hello, world in c++
+date:  2022-09-06 12:54:00 +0900
+description: Hello World！
+img: post-2.jpg # Add image post (optional)
+tags: [C++]
+author: # Add name author (optional)
+c_cpp: true
+---
+
+<!--more-->
+介绍如何简单写一个c++代码
+# C++
+
+```c++
+#include <iostream>
+using namespace std;
+
+int main(int argc, char* argv[]) {
+	cout<<"hello, wolrd!"<<endl;
+	return 0;
+}
+```

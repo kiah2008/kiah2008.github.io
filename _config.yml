@@ -1,0 +1,119 @@
+# Build settings
+markdown: kramdown
+kramdown:
+  auto_ids:       true
+  footnote_nr:    1
+  entity_output:  as_char
+  toc_levels:     1..6
+  smart_quotes:   lsquo,rsquo,ldquo,rdquo
+  enable_coderay: false
+
+
+plugins:
+  - jekyll-paginate
+  - jekyll-feed
+  - jekyll-sitemap
+
+
+show_downloads: true
+
+title: Kiah's daily
+description: kiah's blog.
+
+permalink: ':title/'
+
+#baseurl: "/adam-blog" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
+
+# Author settings add your name
+author: Kiah Zhao
+author-pic: blacktocat.png
+about-author: I am an Android developer and focus on audio/video technicals.
+timezone: Asia/Shanghai
+
+#修改成你自己的
+# Contact links
+website: http://techyself.com
+pinterest: # Add your Pinterest handle
+
+#修改成你自己的
+email: kiah2008@qq.com
+phone:
+github: https://github.com/kiah2008
+
+# Newsletter
+mailchimp: # Add your MailChimp form identifier.
+
+# Disqus修改成你自己的
+discus_identifier: kiah-zhao
+# Add your discus identifier
+
+#intensedebate修改成你自己的
+intensedebate_identifier:
+
+# Tracker Google Analytics修改成你自己的
+google-analysis:
+baidu-analysis: 25f843956cb12e071ce88189ef762579
+
+#youyan
+youyan-id: 
+
+# Paginate
+paginate: 6
+paginate_path: "/page:num"
+
+include: [_pages]
+exclude: ["node_modules", "gulpfile.js", "package.json", "yarn.lock"]
+
+imagepath: /
+
+links:
+  - name:         About
+    url:          /about/index.html
+    external:     false
+
+#添加分类步骤：
+#1：在_config.yml links1及blog_中添加对应内容
+#2：在_includes里面headr.html中添加对应内容
+#3：在根目录blog文件中创建对应内容
+
+label1: <span style="font-size:12px">Publish by
+label2:  </span>
+
+
+links1:
+  - name:         所有
+    url:          /blog
+    type:         recent
+    external:     false
+  - name:         随笔
+    url:          /blog/essays
+    type:         essays
+    external:     false
+  - name:         C/C++
+    url:          /blog/c_cpp
+    type:         c_cpp
+    external:     false
+  - name:         杂项
+    url:          /blog/misc
+    type:         misc
+    external:     false
+
+blog_1:    recent
+blog_2:    essays
+blog_3:    c_cpp
+blog_4:    misc
+
+# defaults:
+#   -
+#     scope:
+#       path: "_posts"
+#       type: "posts"
+#     values:
+#       author: kiah zhao
+
+# 摘要截断标志
+excerpt_separator: <!--more-->
+#{{ post.excerpt | remove: '<p>' | remove: '</p>' }}
+
+#permalink: /:year/:month/:day/:title.html
