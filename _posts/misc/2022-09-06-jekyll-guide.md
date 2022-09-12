@@ -605,3 +605,4 @@ If you specify front matter in a layout, access that via `layout`. For example, 
 
 
 > [Github+Jekyll 搭建个人网站详细教程](https://www.jianshu.com/p/9f71e260925d)
+> [Jekyll cheat sheet](https://cloudcannon.com/community/jekyll-cheat-sheet/)
