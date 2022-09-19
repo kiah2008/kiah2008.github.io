@@ -12,7 +12,7 @@ timezone: Asia/Shanghai
 encoding: "utf-8"
 
 # 页面左下角显示的年份
-since: 2020
+since: 2022
 # 源码仓库
 repository: kiah2008/kiah2008.github.io
 repo_branch: main
