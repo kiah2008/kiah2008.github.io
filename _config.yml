@@ -113,7 +113,7 @@ kramdown:
     input: GFM
 #highlighter: rouge
 
-paginate: 6
+paginate: 10
 lsi: false
 quiet: false
 excerpt_separator: "<!-- more -->"
