@@ -2,6 +2,10 @@
   url: http://techyself.com
   src: life
 
-- name: Lei Xiaohua for audio/video
+- name: Lei Xiaohua-音视频博客
   url: https://leixiaohua1020.github.io/
+  src: technical
+
+- name: Java全栈知识-Java开发知识汇总
+  url: https://pdai.tech/
   src: technical
