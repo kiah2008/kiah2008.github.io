@@ -8,8 +8,9 @@
 2. AMR和AAC那种编码更适合通话场景;
 3. 如何优化通话过程中的语音音质;
 4. 自适应码率
+5. 如何实现sip phone
 
-# linphone
+# linphone概览
 
 > Linphone is an open source softphone for voice and video over IP calling and instant messaging.
 >
@@ -17,9 +18,105 @@
 >
 > General description is available from [linphone web site](https://www.linphone.org/technical-corner/linphone).
 
+## 架构图
+
+![img](assets/linphone_archtecture.jpg)
 
 
-## linphone构建
+
+[**Liblinphone**](https://www.linphone.org/technical-corner/liblinphone) relies on the following software components:
+
+- [**Mediastreamer2**](https://www.linphone.org/technical-corner/mediastreamer2), a powerful multimedia SDK for audio/video streaming and processing
+- [**oRTP**](https://www.linphone.org/technical-corner/ortp), a simple RTP library
+- [**belle-sip**](https://www.linphone.org/technical-corner/belle-sip), the SIP library
+
+[**Liblinphone**](https://www.linphone.org/technical-corner/liblinphone) and all its dependencies are written in C++ and C.
+
+
+
+## **Linphone 功能**
+
+- **HD audio and video calls**
+- Multiple call management (pause and resume)
+- Call transfer
+- Audio conferencing (merge calls into a conference call)
+- **Call recording and replay (audio only)**
+- Instant Messaging
+- Message delivery status (IMDN)
+- Picture and file sharing
+- Message forwarding (Android only)
+- Chat access during calls
+- Contact list
+- "Invite your friends" feature
+- Call history
+- Display of advanced call statistics
+- **Echo cancellation**
+- **Call quality indicator**
+- Secure user authentication: md5 / SHA256 digest, TLS client certificates
+- SRTP, zRTP and SRTP-DTLS voice and video encryption
+- Supported languages: English, French
+- Account creation assistant
+- Remote provisioning
+
+**ADVANCED FEATURES**
+
+- **Audio codecs:  opus, speex, g711, g729, gsm, iLBC, AMR, AMR-WB, g722, SILK, iSAC, BV16, Codec2**
+- **Video codecs: VP8, H.264 and H.265 with resolutions up to 1080P, MPEG4**
+- **Hardware accelerated H.264 and H.265 codec for Mac OSX / iOS (VideoToolbox) and Android (MediaCodec)**
+- **Innovative RTP jitter buffer algorithm, which quickly adapts to network conditions with a lot of jitter and improves control of the audio latency**
+- **Adaptive bit rate control algorithm: congestion control and estimation of available bandwidth, in order to optimise the quality of audio and video**
+- Integration with push notification (requires compatible SIP server; [***linphone.org SIP service\***](https://www.linphone.org/freesip/home) is push enabled)
+- ICE (RFC 5245), STUN and TURN (RFC 5766) for optimised NAT traversal, allowing for peer-to-peer audio and video connections whenever possible
+- Call handover accross a change of network access type (e.g. start a call in wifi and continue in 3G)
+- Ability to configure multiple proxy accounts with different transports protocols (UDP, TCP, TLS)
+- IPv6 (dual-stack and v6-only support)
+- DTMF (telephone tone) support using SIP INFO or RFC 4733
+
+For more information, consult the complete list of implemented standards in the [***Liblinphone*** ](https://www.linphone.org/technical-corner/liblinphone)section.
+
+### Mobile-specific features (iOS/Android)
+
+- Multi-participant Instant Messaging (group chat)
+- End-to-end encryption for both 1-to-1 and group instant messages (requires ***[LIME](https://www.linphone.org/technical-corner/lime)\*** library)
+- Smart contact list (shows people using the service) using list subscription to a presence server
+- Provisioning via QR Code
+- Support for bluetooth headset
+- Dedicated tablet user interface
+- Blind accessibility
+- Replay of recorded calls from the "Recordings" menu
+- Configurable setting to automatically / manually download attachments
+
+Linphone is available on the following mobile platforms:
+
+- Apple iOS 9 to 14 (ARM v7, ARM 64)
+- Google Android 6 to 11 (ARM v7, ARM 64, x86, x86-64)
+
+**iOS ADDITIONAL FEATURES**
+
+- AAC-ELD support
+
+**ANDROID ADDITIONAL FEATURES**
+
+- **Video overlay**
+
+**PORTABILITY**
+
+- **GNU/Linux: x86, x86-64, ARM v5, v7, arm64 ; Debian 8/9, Centos 7**
+- **Windows Desktop: x86 (works also on x86_64), Windows 7 and later**
+- **Mac OS X: x86_64 ; 10.11 and later.**
+- **GNU/Linux embedded:** linphone-daemon is a good candidate to provide the software stack for a hardware phone or hardware communication system.
+
+## 代码
+
+| **Project**                                                  | **Git repository**                                           |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| linphone-desktop, comprising:linphone (Qt user interface)linphone-sdk | git clone https://gitlab.linphone.org/BC/public/linphone-desktop.git --recursive |
+| linphone-iphone (iOS application)                            | git clone https://gitlab.linphone.org/BC/public/linphone-iphone.git |
+| linphone-android (Android application)                       | git clone https://gitlab.linphone.org/BC/public/linphone-android.git |
+
+
+
+# linphone构建
 
 
 
