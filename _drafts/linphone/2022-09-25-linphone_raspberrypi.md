@@ -1,4 +1,17 @@
+---
+layout: post
+title: 使用树莓派搭建一个视频监控系统
+categories: [open-hardware]
+description: 使用树莓派搭建一个视频监控系统
+keywords: raspberry pi, 视频监控
+dashang: true
+topmost: false
+tags: [RaspberryPi]
+date:  2022-09-25 21:16:00 +0900
+---
+
 # Using the raspberry pi for video monitoring
+<!-- more -->
 
 The Raspberry PI is a good hardware for making a simple video monitoring device, such as watching at any time what's happening at home, if cats have enough to eat, chicken safe from fox attacks, or simply see at distance what's the weather like. The linphone console tools (**linphonec** and **linphone-daemon**) can be used to automatically accept a SIP call with video, so that it becomes possible from Linphone android or iOS app to call home at any time.
 
