@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 对Jekyll的页面进行修改的实用技巧
-categories: misc
+categories: web
 tags: [jekyll, css]
 description: 介绍jekyll的一些简单技巧,实现个人页面博客的定制.
 dashang: true

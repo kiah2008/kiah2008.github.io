@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 对Jekyll+github pages进行优化
-categories: misc
+categories: web
 tags: [jekyll]
 description: Jekyll和github pages搭建个人博客, 进行自定义域名, SSL和网站加速.
 dashang: true
@@ -22,7 +22,7 @@ Jekyll和github pages搭建个人博客, 进行自定义域名, SSL和网站加�
 - A 域名关联到一个IPv4地址
 - CNAME 域名关联到另外一个域名
 
-![git pages 配置]({{ site.baseurl }}/images/misc/1662783868819.png)
+![git pages 配置]({{ site.baseurl }}/images/web/1662783868819.png)
 
 # 网站加速
 

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 使用Jekyll+github快速搭建个人网站
-categories: misc
+categories: web
 tags: [jekyll]
 description: 使用Jekyll+github快速搭建个人网站
 dashang: true

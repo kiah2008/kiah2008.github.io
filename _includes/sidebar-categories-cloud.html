@@ -16,8 +16,24 @@
   {% assign diff = 1 %}
 {% endif %}
 
-{% for category in site.categories %}
-  {% assign temp = category[1].size | minus: min | times: 36 | divided_by: diff %}
+{% for category in site.categories  %}
+  {% assign category_size = category[1].size %}
+  {% assign category_name = category[0] %}
+  {% if category_size < 10 %} {% comment %} Add a '0' to the size section if size < 10. {% endcomment %}
+	{% assign categorylist = categorylist | append: "0"|append: category_size|append: ","|append: category_name |append: "@" %}
+  {% else %}
+  {% assign categorylist = categorylist | append: category_size|append: ","|append: category_name |append: "@" %}
+  {% endif %}
+{% endfor %}
+{% assign sorted_categorylist = categorylist | split: "@" |sort|reverse %}
+{% for sorted_category in sorted_categorylist %}
+  {% assign sorted_category_array = sorted_category | split: "," %}
+  {% if sorted_category_array[0].size == 2 %}
+	{% assign sorted_category_size = sorted_category_array[0] | slice: 1 %}
+  {% endif %}
+
+  {% comment %} calculate font style by num. {% endcomment %}
+  {% assign temp = sorted_category_size | minus: min | times: 36 | divided_by: diff %}
   {% assign base = temp | divided_by: 4 %}
   {% assign remain = temp | modulo: 4 %}
   {% if remain == 0 %}
@@ -32,9 +48,8 @@
   {% else %}
     {% assign color = 8 | minus: base %}
   {% endif %}
-  <p>
-    <a href="{{ site.baseurl }}/categories/#{{ category[0] }}" style="font-size: {{ size }}pt; color: #{{ color }}{{ color }}{{ color }};">{{ category | first }}</a>
-  </p>
+  <a href="{{ site.baseurl }}/categories/#{{ sorted_category_array[1] }}" style="font-size: {{ size }}pt; color: #{{ color }}{{ color }}{{ color }};">{{ sorted_category_array[1] }}({{ sorted_category_size }})</a>
+  <br/>
 {% endfor %}
 
 </div>
