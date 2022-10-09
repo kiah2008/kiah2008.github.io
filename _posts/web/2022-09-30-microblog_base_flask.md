@@ -10,6 +10,7 @@ topmost: false
 mermaid: false
 date:  2022-09-30 16:30:00 +0900
 ---
+
 个人博客网站使用github+jekyll搭建,虽然已经很满意,不过最近想起自己也是学过一段时间的flask,而且jekyll的模板跟样式跟flask很像,应该是可以很容易将jekyll的个人博客复用到flask,搭建一个动态网站,这样可以有更好的扩展性和互动.
 
 <!-- more -->
@@ -70,8 +71,6 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>>
 ```
 
-
-
 ## 使用pycharm进行开发
 
 pycharm是个不错的python集成开发环境，个人用途可以从官网下载社区版。
@@ -111,8 +110,6 @@ pycharm是个不错的python集成开发环境，个人用途可以从官网下�
     ]
 }
 ```
-
-
 
 ## 启动Flask App
 
@@ -310,8 +307,6 @@ INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
 INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
 INFO  [alembic.runtime.migration] Running upgrade  -> e517276bb1c2, users table
 ```
-
-
 
 https://ondras.zarovi.cz/sql/demo/
 
@@ -538,23 +533,23 @@ def before_request():
 
 `g`是flask预制变量, 用来在处理请求期间,存储全局变量.`g`是请求相关的,也即不同请求其内容取决于具体的request.
 
-```html
+```
 <!-- app/templates/base.html: Render the search form in the navigation bar.-->
-			...
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav">
-                    ... home and explore links ...
-                </ul>
-                {% if g.search_form %}
-                <form class="navbar-form navbar-left" method="get"
-                        action="{{ url_for('main.search') }}">
-                    <div class="form-group">
-                        {{ g.search_form.q(size=20, class='form-control',
-                            placeholder=g.search_form.q.label.text) }}
-                    </div>
-                </form>
-                {% endif %}
-                ...
+...
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+        ... home and explore links ...
+    </ul>
+    {/% if g.search_form %/}
+    <form class="navbar-form navbar-left" method="get"
+            action="{/{ url_for('main.search') }}">
+        <div class="form-group">
+            {/{ g.search_form.q(size=20, class='form-control',
+                placeholder=g.search_form.q.label.text) }}
+        </div>
+    </form>
+    {/% endif %/}
+    ...
 ```
 
 ## search处理函数
@@ -582,65 +577,65 @@ def search():
 
 *app/templates/search.html*: Search results template.
 
-```html
-{% extends "base.html" %}
+```
+{/% extends "base.html" %/}
 
-{% block app_content %}
-    <h1>{{ _('Search Results') }}</h1>
-    {% for post in posts %}
-        {% include '_post.html' %}
-    {% endfor %}
+{/% block app_content %/}
+    <h1>{/{ _('Search Results') }}</h1>
+    {/% for post in posts %/}
+        {/% include '_post.html' %/}
+    {/% endfor %/}
     <nav aria-label="...">
         <ul class="pager">
-            <li class="previous{% if not prev_url %} disabled{% endif %}">
-                <a href="{{ prev_url or '#' }}">
+            <li class="previous{/% if not prev_url %/} disabled{/% endif %/}">
+                <a href="{/{ prev_url or '#' }}">
                     <span aria-hidden="true">&larr;</span>
-                    {{ _('Previous results') }}
+                    {/{ _('Previous results') }}
                 </a>
             </li>
-            <li class="next{% if not next_url %} disabled{% endif %}">
-                <a href="{{ next_url or '#' }}">
-                    {{ _('Next results') }}
+            <li class="next{/% if not next_url %/} disabled{/% endif %/}">
+                <a href="{/{ next_url or '#' }}">
+                    {/{ _('Next results') }}
                     <span aria-hidden="true">&rarr;</span>
                 </a>
             </li>
         </ul>
     </nav>
-{% endblock %}
+{/% endblock %/}
 ```
 
-透过`{% block app_content %}` override app_content 内容(注意, 如需要保留父模板内容, 需要使用`{{ super() }}`), 同时使用include 嵌套html
+透过`{/% block app_content %/}` override app_content 内容(注意, 如需要保留父模板内容, 需要使用`{/{ super() }}`), 同时使用include 嵌套html
 
 _post.html
 
-```html
+```
     <table class="table table-hover">
         <tr>
             <td width="70px">
-                <a href="{{ url_for('main.user', username=post.author.username) }}">
-                    <img src="{{ post.author.avatar(70) }}" />
+                <a href="{/{ url_for('main.user', username=post.author.username) }}">
+                    <img src="{/{ post.author.avatar(70) }}" />
                 </a>
             </td>
             <td>
-                {% set user_link %}
-                    <a href="{{ url_for('main.user', username=post.author.username) }}">
-                        {{ post.author.username }}
+                {/% set user_link %/}
+                    <a href="{/{ url_for('main.user', username=post.author.username) }}">
+                        {/{ post.author.username }}
                     </a>
-                {% endset %}
-                {{ _('%(username)s said %(when)s',
+                {/% endset %/}
+                {/{ _('%(username)s said %(when)s',
                     username=user_link, when=moment(post.timestamp).fromNow()) }}
                 <br>
-                <span id="post{{ post.id }}">{{ post.body }}</span>
-                {% if post.language and post.language != g.locale %}
+                <span id="post{/{ post.id }}">{/{ post.body }}</span>
+                {/% if post.language and post.language != g.locale %/}
                 <br><br>
-                <span id="translation{{ post.id }}">
+                <span id="translation{/{ post.id }}">
                     <a href="javascript:translate(
-                                '#post{{ post.id }}',
-                                '#translation{{ post.id }}',
-                                '{{ post.language }}',
-                                '{{ g.locale }}');">{{ _('Translate') }}</a>
+                                '#post{/{ post.id }}',
+                                '#translation{/{ post.id }}',
+                                '{/{ post.language }}',
+                                '{/{ g.locale }}');">{/{ _('Translate') }}</a>
                 </span>
-                {% endif %}
+                {/%% endif %%/}
             </td>
         </tr>
     </table>
@@ -706,18 +701,18 @@ class MessageForm(FlaskForm):
 
 *app/templates/send_message.html*: Send private message HTML template.
 
-```html
-{% extends "base.html" %}
-{% import 'bootstrap/wtf.html' as wtf %}
+```
+{/% extends "base.html" %/}
+{/% import 'bootstrap/wtf.html' as wtf %/}
 
-{% block app_content %}
-    <h1>{{ _('Send Message to %(recipient)s', recipient=recipient) }}</h1>
+{/% block app_content %/}
+    <h1>{/{ _('Send Message to %(recipient)s', recipient=recipient) }}</h1>
     <div class="row">
         <div class="col-md-4">
-            {{ wtf.quick_form(form) }}
+            {/{ wtf.quick_form(form) }}
         </div>
     </div>
-{% endblock %}
+{/% endblock %/}
 ```
 
 ## add view function
@@ -750,16 +745,16 @@ def send_message(recipient):
 
 ## Profile添加发送消息链接
 
-```html
+```
 <!-- app/templates/user.html: Send private message link in user profile page. -->
-{% if user != current_user %}
+{/% if user != current_user %/}
 <p>
-    <a href="{{ url_for('main.send_message',
+    <a href="{/{ url_for('main.send_message',
              recipient=user.username) }}">
-        {{ _('Send private message') }}
+        {/{ _('Send private message') }}
     </a>
 </p>
-{% endif %}
+{/% endif %/}
 ```
 
 
@@ -882,10 +877,6 @@ def _set_task_progress(progress):
 
 ## 实现导出任务
 
-
-
-
-
 # 其它
 
 ## 环境变量
@@ -911,7 +902,7 @@ pip生成或是安装requriements
 - `pip freeze > requirements.txt`
 - `pip install -r requirements.txt`
 
-## current_app
+## current_app介紹
 
 flask内置变量, 线程局部变量,只有响应request的线程才有效. 如需要在不同线程间传递,需要使用current_app._get_current_object().
 
@@ -923,16 +914,9 @@ flask内置变量, 线程局部变量,只有响应request的线程才有效. 如
 
 - [editormd.js](https://pandao.github.io/editor.md/)
 
-  
-
 # FAQ
 
 ## Flask中, 我们会看到有些import会位于文件尾部,而非推荐的文件开始位置
-  ````
-  原因是为了避免循环依赖,This import is at the bottom to avoid circular dependencies.
-  ````
-
-
-
-
-
+`
+原因是为了避免循环依赖,This import is at the bottom to avoid circular dependencies.
+`
