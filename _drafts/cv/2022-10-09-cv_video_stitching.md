@@ -48,6 +48,17 @@ $ git clone https://github.com/opencv/opencv.git -b 4.6.0
       "C": "path/to/Android/Sdk/ndk/toolchains/llvm/prebuilt/windows-x86_64/bin/clang.exe",
       "CXX": "path/to/Android/Sdk/ndk/toolchains/llvm/prebuilt/windows-x86_64/bin/clang++.exe"
     }
+  },
+  ,
+  {
+    "name": "Visual Studio Community 2022 Release - amd64",
+    "visualStudio": "9b8c874c",
+    "visualStudioArchitecture": "x64",
+    "preferredGenerator": {
+      "name": "Visual Studio 17 2022",
+      "platform": "x64",
+      "toolset": "host=x64"
+    }
   }
 ]
 ```
