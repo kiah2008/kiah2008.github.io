@@ -89,6 +89,27 @@ $ git clone https://github.com/opencv/opencv.git -b 4.6.0
 }
 ```
 
+for mingw
+```
+{
+    "cmake.configureArgs": [
+        "-DBUILD_PERF_TESTS=OFF",
+        "-DBUILD_TESTS=OFF",
+        "-DBUILD_opencv_python=OFF",
+        "-DBUILD_opencv_js=OFF",
+        "-DBUILD_ANDROID_PROJECTS=OFF",
+        "-DBUILD_ANDROID_EXAMPLES=OFF",
+        "-DBUILD_JAVA=OFF",
+        "-DBUILD_ZLIB=OFF",
+        "-DBUILD_EXAMPLES=ON"
+    ],
+    "cmake.generator": "MinGW Makefiles",
+    "files.associations": {
+        "iosfwd": "cpp"
+    }
+}
+```
+
 启动cmake configure\build
 
 ## NDK only
