@@ -97,11 +97,11 @@ for mingw
         "-DBUILD_TESTS=OFF",
         "-DBUILD_opencv_python=OFF",
         "-DBUILD_opencv_js=OFF",
-        "-DBUILD_ANDROID_PROJECTS=OFF",
-        "-DBUILD_ANDROID_EXAMPLES=OFF",
-        "-DBUILD_JAVA=OFF",
-        "-DBUILD_ZLIB=OFF",
-        "-DBUILD_EXAMPLES=ON"
+        "-DWITH_CUDA=ON",
+        "-DWITH_FFMPEG=ON",
+        "-DOPENCV_FFMPEG_USE_FIND_PACKAGE=ON",
+        "-DOPENCV_FFMPEG_SKIP_BUILD_CHECK=OFF",
+        "-DOPENCV_EXTRA_MODULES_PATH=/home/kiah/worktmp/opencv_contrib/modules/"
     ],
     "cmake.generator": "MinGW Makefiles",
     "files.associations": {
@@ -111,6 +111,65 @@ for mingw
 ```
 
 启动cmake configure\build
+
+## FFMPEG
+
+使用apt 安装ffmpeg相关库
+
+`sudo apt-get install libavdevice-dev`
+
+```
+[cmake] --   Video I/O:
+[cmake] --     DC1394:                      NO
+[cmake] --     FFMPEG:                      YES (find_package)
+[cmake] --       avcodec:                   YES (58.134.100)
+[cmake] --       avformat:                  YES (58.76.100)
+[cmake] --       avutil:                    YES (56.70.100)
+[cmake] --       swscale:                   YES (5.9.100)
+[cmake] --       avresample:                NO
+[cmake] --     GStreamer:                   NO
+```
+
+查询ffmpeg相关库信息
+
+```shell
+$ dpkg -l libswresample-dev
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name                    Version                  Architecture Description
++++-=======================-========================-============-=========================================================================
+ii  libswresample-dev:amd64 7:4.4.2-0ubuntu0.22.04.1 amd64        FFmpeg library for audio resampling, rematrixing etc. - development files
+
+$ dpkg -L libswresample-dev
+/.
+/usr
+/usr/include
+/usr/include/x86_64-linux-gnu
+/usr/include/x86_64-linux-gnu/libswresample
+/usr/include/x86_64-linux-gnu/libswresample/swresample.h
+/usr/include/x86_64-linux-gnu/libswresample/version.h
+/usr/lib
+/usr/lib/x86_64-linux-gnu
+/usr/lib/x86_64-linux-gnu/libswresample.a
+/usr/lib/x86_64-linux-gnu/pkgconfig
+/usr/lib/x86_64-linux-gnu/pkgconfig/libswresample.pc
+/usr/share
+/usr/share/doc
+/usr/share/doc/libswresample-dev
+/usr/share/doc/libswresample-dev/copyright
+/usr/lib/x86_64-linux-gnu/libswresample.so
+/usr/share/doc/libswresample-dev/changelog.Debian.gz
+```
+
+# CUDA
+
+主要是安装nvidia drivers， cuda toolkit以及sdk
+
+`nvidia-smi`确认是否成功安装
+
+
+
 
 ## NDK only
 
@@ -143,6 +202,6 @@ $ninja -j [nproc]
 
 # Opencv image stitch
 
-![StitchingPipeline.jpg](assets/StitchingPipeline.jpg)
+![StitchingPipeline.jpg](/images/cv/StitchingPipeline.jpg)
 
 > https://docs.opencv.org/4.x/d1/d46/group__stitching.html

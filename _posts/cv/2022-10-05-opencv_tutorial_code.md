@@ -1,4 +1,18 @@
+---
+layout: post
+title: opencv例程学习
+categories: [cv]
+tags: [opencv, sample]
+description: video stitch学习
+keywords: opencv, tutorial
+dashang: true
+topmost: false
+mermaid: false
+date:  2022-10-05 10:00:00 +0900
+---
 
+opencv教程讲解
+<!-- more -->
 ```
 └─tutorial_code
     ├─calib3d                           # 相机标定模块
