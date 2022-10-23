@@ -111,6 +111,73 @@ for mingw
 ```
 
 启动cmake configure\build
+```
+[cmake] -- 
+[cmake] --   GUI:                           GTK2
+[cmake] --     GTK+:                        YES (ver 2.24.33)
+[cmake] --       GThread :                  YES (ver 2.72.1)
+[cmake] --       GtkGlExt:                  NO
+[cmake] --     VTK support:                 NO
+[cmake] -- 
+[cmake] --   Media I/O: 
+[cmake] --     ZLib:                        /usr/lib/x86_64-linux-gnu/libz.so (ver 1.2.11)
+[cmake] --     JPEG:                        /usr/lib/x86_64-linux-gnu/libjpeg.so (ver 80)
+[cmake] --     WEBP:                        build (ver encoder: 0x020f)
+[cmake] --     PNG:                         /usr/lib/x86_64-linux-gnu/libpng.so (ver 1.6.37)
+[cmake] --     TIFF:                        /usr/lib/x86_64-linux-gnu/libtiff.so (ver 42 / 4.3.0)
+[cmake] --     JPEG 2000:                   build (ver 2.4.0)
+[cmake] --     OpenEXR:                     build (ver 2.3.0)
+[cmake] --     HDR:                         YES
+[cmake] --     SUNRASTER:                   YES
+[cmake] --     PXM:                         YES
+[cmake] --     PFM:                         YES
+[cmake] -- 
+[cmake] --   Video I/O:
+[cmake] --     DC1394:                      NO
+[cmake] --     FFMPEG:                      YES (find_package)
+[cmake] --       avcodec:                   YES (58.134.100)
+[cmake] --       avformat:                  YES (58.76.100)
+[cmake] --       avutil:                    YES (56.70.100)
+[cmake] --       swscale:                   YES (5.9.100)
+[cmake] --       avresample:                NO
+[cmake] --     GStreamer:                   NO
+[cmake] --     v4l/v4l2:                    YES (linux/videodev2.h)
+[cmake] -- 
+[cmake] --   Parallel framework:            pthreads
+[cmake] -- 
+[cmake] --   Trace:                         YES (with Intel ITT)
+[cmake] -- 
+[cmake] --   Other third-party libraries:
+[cmake] --     Intel IPP:                   2020.0.0 Gold [2020.0.0]
+[cmake] --            at:                   /home/kiah/worktmp/opencv/build/3rdparty/ippicv/ippicv_lnx/icv
+[cmake] --     Intel IPP IW:                sources (2020.0.0)
+[cmake] --               at:                /home/kiah/worktmp/opencv/build/3rdparty/ippicv/ippicv_lnx/iw
+[cmake] --     VA:                          NO
+[cmake] --     Lapack:                      NO
+[cmake] --     Eigen:                       NO
+[cmake] --     Custom HAL:                  NO
+[cmake] --     Protobuf:                    build (3.19.1)
+[cmake] -- 
+[cmake] --   NVIDIA CUDA:                   YES (ver 11.8, CUFFT CUBLAS)
+[cmake] --     NVIDIA GPU arch:             35 37 50 52 60 61 70 75 80 86
+[cmake] --     NVIDIA PTX archs:
+[cmake] -- 
+[cmake] --   cuDNN:                         NO
+[cmake] -- 
+[cmake] --   OpenCL:                        YES (no extra features)
+[cmake] --     Include path:                /home/kiah/worktmp/opencv/3rdparty/include/opencl/1.2
+[cmake] --     Link libraries:              Dynamic load
+[cmake] -- 
+[cmake] --   Python (for build):            /usr/bin/python3
+[cmake] -- 
+[cmake] --   Java:                          
+[cmake] --     ant:                         NO
+[cmake] --     JNI:                         NO
+[cmake] --     Java wrappers:               NO
+[cmake] --     Java tests:                  NO
+[cmake] -- 
+[cmake] --   Install to:                    /usr/local
+```
 
 ## FFMPEG
 
