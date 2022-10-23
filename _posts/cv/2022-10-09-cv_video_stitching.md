@@ -272,3 +272,17 @@ $ninja -j [nproc]
 ![StitchingPipeline.jpg](/images/cv/StitchingPipeline.jpg)
 
 > https://docs.opencv.org/4.x/d1/d46/group__stitching.html
+
+# GTK 2.0 install
+```
+./build/bin/example_cv_read_image data/pic/test_monkey.jpg 
+
+[ INFO:0@0.004] global opencv/modules/highgui/src/registry.impl.hpp (114) UIBackendRegistry UI: Enabled backends(3, sorted by priority): GTK(1000); GTK3(990); GTK2(980)
+OpenCV(4.6.0) Error: Unspecified error (The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Cocoa support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script) in cvShowImage, file /home/kiah/worktmp/opencv/modules/highgui/src/window.cpp, line 1267
+terminate called after throwing an instance of 'cv::Exception'
+  what():  OpenCV(4.6.0) /home/kiah/worktmp/opencv/modules/highgui/src/window.cpp:1267: error: (-2:Unspecified error) The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Cocoa support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script in function 'cvShowImage'
+
+Aborted (core dumped)
+```
+
+`sudo apt-get install libgtk2.0-dev`并重新构建opencv 库
