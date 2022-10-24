@@ -55,7 +55,6 @@ Restart the machine for the changes to take effect.
 
 ```
 $ nvidia-smi 
-Sun Oct 23 11:46:28 2022       
 +-----------------------------------------------------------------------------+
 | NVIDIA-SMI 515.76       Driver Version: 515.76       CUDA Version: 11.7     |
 |-------------------------------+----------------------+----------------------+
@@ -140,6 +139,21 @@ Building for 5.15.0-52-generic
 Building for architecture x86_64
 Building initial module for 5.15.0-52-generic
 .....................
+```
+
+
+
+choose the right cuda-drivers
+
+```shell
+CUDA_VERSION=$(apt-cache showpkg cuda-drivers | grep -o 'cuda-runtime-[0-9][0-9]-[0-9],cuda-drivers [0-9\.]*' | while read line; do
+   if dpkg --compare-versions ${CUDA_DRIVER_VERSION} ge $(echo $line | grep -Eo '[[:digit:]]+\.[[:digit:]]+') ; then
+       echo $(echo $line | grep -Eo '[[:digit:]]+-[[:digit:]]')
+       break
+   fi
+done)
+sudo apt install cuda-${CUDA_VERSION}
+
 ```
 
 
@@ -313,3 +327,234 @@ dpkg -l | grep -i nvidia
 ![See installed Nvidia packages on Ubuntu 20.04.](https://phoenixnap.com/kb/wp-content/uploads/2021/04/see-installed-nvidia-packages.png)
 
 The output returns a list of all Nvidia packages on the system.
+
+
+> [Unbuntu20.04安装nvidia驱动，cuda和cudnn](https://zhuanlan.zhihu.com/p/426766748)
+
+
+
+[安装 GPU 驱动程序](https://cloud.google.com/compute/docs/gpus/install-drivers-gpu?hl=zh_cn)
+
+## 在使用安全启动的虚拟机上安装 GPU 驱动程序
+
+启用了[安全启动](https://cloud.google.com/security/shielded-cloud/shielded-vm?hl=zh-cn#secure-boot)的虚拟机需要由系统信任的密钥签署所有内核模块。
+
+### 操作系统支持
+
+- 如需在使用安全启动的 Windows 操作系统上安装 NVIDIA 驱动程序，请参阅常规的[在虚拟机上安装 GPU 驱动程序](https://cloud.google.com/compute/docs/gpus/install-drivers-gpu?hl=zh_cn#no-secure-boot)部分。
+- 对于 Linux 操作系统，仅支持 Ubuntu 18.04 和 20.04 操作系统。我们正在设法支持更多操作系统。
+
+[Ubuntu 18.04 和 20.04](https://cloud.google.com/compute/docs/gpus/install-drivers-gpu?hl=zh_cn#ubuntu-18.04-和-20.04)
+
+1. [连接到要安装驱动程序的虚拟机](https://cloud.google.com/compute/docs/instances/connecting-to-instance?hl=zh-cn)。
+
+2. 更新代码库
+
+   ```
+   sudo apt-get update
+   ```
+
+3. 搜索最新的 NVIDIA 内核模块软件包或您所需的版本。此软件包包含由 Ubuntu 密钥签名的 NVIDIA 内核模块。运行以下命令以查看最新的软件包：
+
+   ```
+   NVIDIA_DRIVER_VERSION=$(sudo apt-cache search 'linux-modules-nvidia-[0-9]+-gcp$' | awk '{print $1}' | sort | tail -n 1 | head -n 1 | awk -F"-" '{print $4}')
+   ```
+
+   **注意**：如果您要查找早期版本，请更改 tail 命令中的数字以获取早期版本。
+
+   例如，将数字指定为 `2` 可获取下一个早期版本：
+
+   ```
+   NVIDIA_DRIVER_VERSION=$(sudo apt-cache search 'linux-modules-nvidia-[0-9]+-gcp$' | awk '{print $1}' | sort | tail -n 2 | head -n 1 | awk -F"-" '{print $4}')
+   ```
+
+   
+
+   您可以通过运行 `echo $NVIDIA_DRIVER_VERSION` 来检查选定的驱动程序版本。输出是一个类似于 `455` 的版本字符串。
+
+4. 安装内核模块软件包和相应的 NVIDIA 驱动程序：
+
+   ```
+   sudo apt install linux-modules-nvidia-${NVIDIA_DRIVER_VERSION}-gcp nvidia-driver-${NVIDIA_DRIVER_VERSION}
+   ```
+
+   如果该命令失败，并且显示“找不到软件包”错误，则代码库可能缺少最新的 nvidia 驱动程序。返回到最后一步，以查找早期驱动程序版本。
+
+   **注意**：安装软件包时，系统可能会升级您的内核。
+
+5. [验证](https://cloud.google.com/compute/docs/gpus/install-drivers-gpu?hl=zh_cn#verify-linux)是否已安装 NVIDIA 驱动程序。您可能需要重新启动虚拟机。
+
+6. 配置 APT 以使用 NVIDIA 软件包代码库。
+
+   1. 要帮助 APT 选择正确的依赖项，请按如下所示 Pin 代码库：
+
+      ```
+      sudo tee /etc/apt/preferences.d/cuda-repository-pin-600 > /dev/null <<EOL
+      Package: nsight-compute
+      Pin: origin *ubuntu.com*
+      Pin-Priority: -1
+      Package: nsight-systems
+      Pin: origin *ubuntu.com*
+      Pin-Priority: -1
+      Package: nvidia-modprobe
+      Pin: release l=NVIDIA CUDA
+      Pin-Priority: 600
+      Package: nvidia-settings
+      Pin: release l=NVIDIA CUDA
+      Pin-Priority: 600
+      Package: *
+      Pin: release l=NVIDIA CUDA
+      Pin-Priority: 100
+      EOL
+      ```
+
+      
+
+   2. 安装 `software-properties-common`。如果您使用的是 Ubuntu 最小映像，则必须执行此操作。
+
+      ```
+      sudo apt install software-properties-common
+      ```
+
+      
+
+   3. 添加 NVIDIA 代码库：
+
+      - Ubuntu 18.04
+
+        ```
+        sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+        sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
+        ```
+
+      - Ubuntu 20.04
+
+        ```
+        sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
+        sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+        ```
+
+7. 找到兼容的 CUDA 驱动程序版本。
+
+   以下脚本确定与我们刚刚安装的 NVIDIA 驱动程序兼容的最新 CUDA 驱动程序版本：
+
+   ```
+   CUDA_DRIVER_VERSION=$(apt-cache madison cuda-drivers | awk '{print $3}' | sort -r | while read line; do
+      if dpkg --compare-versions $(dpkg-query -f='${Version}\n' -W nvidia-driver-${NVIDIA_DRIVER_VERSION}) ge $line ; then
+          echo "$line"
+          break
+      fi
+   done)
+   ```
+
+   
+
+   您可以通过运行 `echo $CUDA_DRIVER_VERSION` 来检查 CUDA 驱动程序版本。输出是一个类似于 `455.32.00-1` 的版本字符串。
+
+8. 使用上一步中识别的版本安装 CUDA 驱动程序。
+
+   ```
+   sudo apt install cuda-drivers-${NVIDIA_DRIVER_VERSION}=${CUDA_DRIVER_VERSION} cuda-drivers=${CUDA_DRIVER_VERSION}
+   ```
+
+   
+
+9. 可选：保留 `dkms` 软件包。
+
+   启用安全启动后，所有内核模块必须先签署然后才能加载。`dkms` 构建的内核模块不适用于虚拟机，因为在默认情况下它们没有正确签署。这是一个可选步骤，但它有助于防止您将来在无意中安装其他 `dkms` 软件包。
+
+   如需保留 `dkms` 软件包，请运行以下命令：
+
+   ```
+   sudo apt-get remove dkms && sudo apt-mark hold dkms
+   ```
+
+10. 安装 CUDA 工具包和运行时。
+
+    选择合适的 CUDA 版本。以下脚本确定与我们刚刚安装的 CUDA 驱动程序兼容的最新 CUDA 版本：
+
+    ```
+    CUDA_VERSION=$(apt-cache showpkg cuda-drivers | grep -o 'cuda-runtime-[0-9][0-9]-[0-9],cuda-drivers [0-9\.]*' | while read line; do
+       if dpkg --compare-versions ${CUDA_DRIVER_VERSION} ge $(echo $line | grep -Eo '[[:digit:]]+\.[[:digit:]]+') ; then
+           echo $(echo $line | grep -Eo '[[:digit:]]+-[[:digit:]]')
+           break
+       fi
+    done)
+    ```
+
+    
+
+    您可以通过运行 `echo $CUDA_VERSION` 来检查 CUDA 版本。输出是一个类似于 `11-1` 的版本字符串。
+
+    安装 CUDA 软件包：
+
+    ```
+    sudo apt install cuda-${CUDA_VERSION}
+    ```
+
+    
+
+11. 验证 CUDA 安装：
+
+    ```
+    sudo nvidia-smi
+    /usr/local/cuda/bin/nvcc --version
+    ```
+
+    第一条命令输出 GPU 信息。第二条命令输出已安装的 CUDA 编译器版本。
+
+    
+
+## 验证 GPU 驱动程序的安装
+
+驱动程序安装步骤完成后，请验证该驱动程序是否已正确安装和初始化。
+
+[Linux](https://cloud.google.com/compute/docs/gpus/install-drivers-gpu?hl=zh_cn#linux)[Windows Server](https://cloud.google.com/compute/docs/gpus/install-drivers-gpu?hl=zh_cn#windows-server)
+
+[连接到 Linux 实例](https://cloud.google.com/compute/docs/instances/connecting-to-instance?hl=zh-cn)，然后使用 `nvidia-smi` 命令验证该驱动程序是否正常运行。
+
+```
+sudo nvidia-smi
+```
+
+输出内容类似如下：
+
+```
+Mon Oct 11 12:51:37 2021
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 470.57.02    Driver Version: 470.57.02    CUDA Version: 11.4     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA A100-SXM...  Off  | 00000000:00:04.0 Off |                    0 |
+| N/A   41C    P0    50W / 400W |      0MiB / 40536MiB |      0%      Default |
+|                               |                      |             Disabled |
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+```
+
+如果此命令失败，请查看以下内容：
+
+- 检查该虚拟机是否挂接了任何 GPU。
+
+  使用以下命令检查是否有任何 NVIDIA PCI 设备：
+
+  `sudo lspci | grep -i "nvidia"`。
+
+- 检查驱动程序内核版本和虚拟机内核版本是否相同。
+
+  - 如需检查虚拟机内核版本，请运行 `uname -r`。
+  - 如需检查驱动程序内核版本，请运行 `sudo apt-cache show linux-modules-nvidia-NVIDIA_DRIVER_VERSION-gcp`。
+
+  如果版本不匹配，请重新启动虚拟机到新的内核版本。
+
+**注意**：如果您使用自动安装脚本，则还可以使用 `python3 install_gpu_driver.py verify` 命令自动编译并运行使用 CUDA 框架的示例脚本。
