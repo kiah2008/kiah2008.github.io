@@ -1,4 +1,4 @@
-对于此前没有看过ExoPlayer的朋友，我们在这里先用下面的时序图简单介绍一下ExoPlayer在音视频同步这块的基本流程： ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/26a2c8e248cc4b47a39c480ba3487504~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image)
+对于此前没有看过ExoPlayer的朋友，我们在这里先用下面的时序图简单介绍一下ExoPlayer在音视频同步这块的基本流程： ![这里写图片描述](/home/kiah/worktmp/kiah2008.github.io/_drafts/audio/2022-10-25-Android_avsync_exoplayer.assets/26a2c8e248cc4b47a39c480ba3487504tplv-k3u1fbpfcp-zoom-in-crop-mark4536000.png)
 
 图中 ExoPlayerImplInternal是Exoplayer的主loop所在处，这个大loop不停的循环运转，将下载、解封装的数据送给AudioTrack和MediaCodec去播放。 MediaCodecAudioRenderer和MediaCodecVideoRenderer分别是处理音频和视频数据的类，在MediaCodecAudioRenderer中会调用AudioTrack的write方法，写入音频数据，同时还会调用AudioTrack的getTimeStamp、getPlaybackHeadPosition、getLantency方法来获得“Audio当前播放的时间”。在MediaCodecVideoRenderer中会调用MediaCodec的几个关键API，例如通过调用releaseOutputBuffer方法来将视频帧送显。在MediaCodecVideoRenderer类中，会依据avsync逻辑调整视频帧的pts，并且控制着丢帧的逻辑。 VideoFrameReleaseTimeHelper可以获取系统的vsync时间和间隔，并且利用vsync信号调整视频帧的送显时间。
 
@@ -20,7 +20,7 @@ MediaCodecVideoRenderer#processOutputBuffer
  // 用当前系统时间加上前面计算出来的时间间隔，即为“预计送显时间” 
   long systemTimeNs = System.nanoTime();
   long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
-复制代码
+
 ```
 
 ## 2、利用vsync对预计送显时间进行调整
@@ -30,17 +30,19 @@ MediaCodecVideoRenderer#processOutputBuffer
 
 long adjustedReleaseTimeNs = frameReleaseTimeHelper.adjustReleaseTime(
       bufferPresentationTimeUs, unadjustedFrameReleaseTimeNs);
-
-复制代码
 ```
 
-adjustReleaseTime方法里面干了几件事： a.计算ns级别的平均帧间隔时间，因为vsync的精度是ns
+adjustReleaseTime方法里面干了几件事：
+
+a.计算ns级别的平均帧间隔时间，因为vsync的精度是ns
 
 b.寻找距离当前送显时间点（unadjustedFrameReleaseTimeNs）最近(可能是在送显时间点之前，也可能是在送显时间点之后)的vsync时间点，我们的目标是在这个vsync时间点让视频帧显示出去
 
 c.上面计算出的是我们的目标vsync显示时间，但是要提前送，给后面的显示流程以时间，所以再减去一个vsyncOffsetNs时间，这个时间是写死的，定义为.8*vsyncDuration，减完之后的这个值就是真正给MediaCodec.releaseOutputBuffer方法的时间戳
 
-这里其实有问题：首先是这里的0.8系数设置的是否合理，其次是否能有办法验证这一帧真的在这一个vsync信号时间点显示出去了。按照mediacodec.releaseOutputbuffer的说法注释，应该在两个vsync信号之前调用release方法，但是从目前的做法来看并没有follow注释的说法。 调研之后，我们发现，利用dumpsys SurfaceFlinger --latency SurfaceView方法我们可以知道每一帧的desiredPresentationTime和actualPresentationTime，经过实测，在一些平台上这两个值得差距在一个vsync时间以上，一般为22ms左右，所以ExoPlayer里面设置的这个0.8的系数也许不甚合理。其次我们观察了NuPlayer的avsync逻辑，发现在NuPlayer中就是严格按照releaseOutputbuffer注释所说的，提前两个vsync时间调用release方法。 上面的提到的注释内容如下
+这里其实有问题：
+
+首先是这里的0.8系数设置的是否合理，其次是否能有办法验证这一帧真的在这一个vsync信号时间点显示出去了。按照mediacodec.releaseOutputbuffer的说法注释，应该在两个vsync信号之前调用release方法，但是从目前的做法来看并没有follow注释的说法。 调研之后，我们发现，利用`dumpsys SurfaceFlinger --latency SurfaceView`方法我们可以知道每一帧的desiredPresentationTime和actualPresentationTime，经过实测，在一些平台上这两个值得差距在一个vsync时间以上，一般为22ms左右，所以ExoPlayer里面设置的这个0.8的系数也许不甚合理。其次我们观察了NuPlayer的avsync逻辑，发现在NuPlayer中就是严格按照releaseOutputbuffer注释所说的，提前两个vsync时间调用release方法。 上面的提到的注释内容如下
 
 ```java
 /**
@@ -94,25 +96,24 @@ c.上面计算出的是我们的目标vsync显示时间，但是要提前送，�
      * @throws MediaCodec.CodecException upon codec error.
      */
     public final void releaseOutputBuffer(int index, long renderTimestampNs)
-复制代码
 ```
 
 ## 3、丢帧和送显
 
 ```scss
 MediaCodecVideoRenderer#processOutputBuffer
-//计算实际送显时间与当前系统时间之间的时间差
-earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
-  //将上面计算出来的时间差与预设的门限值进行对比
-  if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
-    dropOutputBuffer(codec, bufferIndex);
-    return true;
-  }
-…
- if (earlyUs < 50000) {
- //视频帧来的太晚会被丢掉, 来的太早则先不予显示，进入下次loop，再行判断 
- renderOutputBufferV21(codec, bufferIndex, adjustedReleaseTimeNs);
-复制代码
+    //计算实际送显时间与当前系统时间之间的时间差
+    earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
+    //将上面计算出来的时间差与预设的门限值进行对比
+    if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
+      dropOutputBuffer(codec, bufferIndex);
+      return true;
+    }
+    …
+     if (earlyUs < 50000) {
+         //视频帧来的太晚会被丢掉, 来的太早则先不予显示，进入下次loop，再行判断 
+         renderOutputBufferV21(codec, bufferIndex, adjustedReleaseTimeNs);
+
 ```
 
 如果earlyUs 时间差为正值，代表视频帧应该在当前系统时间之后被显示，换言之，代表视频帧来早了，反之，如果时间差为负值，代表视频帧应该在当前系统时间之前被显示，换言之，代表视频帧来晚了。如果超过一定的门限值，即该视频帧来的太晚了，则将这一帧丢掉，不予显示。按照预设的门限值，视频帧比预定时间来的早了50ms以上，则进入下一个间隔为10ms的循环，再继续判断，否则，将视频帧送显。
@@ -127,19 +128,16 @@ earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
 ## 1.1.get current play time – 使用AudioTrack.getTimeStamp方法
 
-```ini
+```java
 AudioTrack#getCurrentPositionUs(boolean sourceEnded)
-
 positionUs = framesToDurationUs(AudioTimestamp.framePosition) 
              + systemClockUs – AudioTimestamp.nanoTime/1000
-
-复制代码
 ```
 
-对getTimeStamp方法的调用是以500ms为间隔的，所以AudioTimestamp.nanoTime是上次调用时拿到的结果，systemClockUs – AudioTimestamp.nanoTime得到的就是距离上次调用所经过的系统时间，framesToDurationUs(AudioTimestamp.framePosition)代表的是上次调用时获取到的“Audio当前播放的时间”，二者相加即为当前系统时间下的“Audio当前播放的时间” 为什么要以500ms为间隔调用getTimeStamp方法？参见API注释，如下
+对getTimeStamp方法的调用是以500ms为间隔的，所以AudioTimestamp.nanoTime是上次调用时拿到的结果，systemClockUs – AudioTimestamp.nanoTime得到的就是距离上次调用所经过的系统时间，framesToDurationUs(AudioTimestamp.framePosition)代表的是上次调用时获取到的“Audio当前播放的时间”，二者相加即为当前系统时间下的“Audio当前播放的时间” , 为什么要以500ms为间隔调用getTimeStamp方法？参见API注释，如下
 
 ```scss
-/**
+	/**
     * Poll for a timestamp on demand.
     * <p>
     * If you need to track timestamps during initial warmup or after a routing or mode change,
@@ -181,43 +179,42 @@ positionUs = framesToDurationUs(AudioTimestamp.framePosition)
     // Add this text when the "on new timestamp" API is added:
     //   Use if you need to get the most recent timestamp outside of the event callback handler.
     public boolean getTimestamp(AudioTimestamp timestamp)
-复制代码
 ```
 
 ## 1.2.get current play time – 使用AudioTrack.getPlaybackHeadPosition方法
 
-```ini
- AudioTrack#getCurrentPositionUs(boolean sourceEnded)
+```java
+AudioTrack#getCurrentPositionUs(boolean sourceEnded)
 
 //因为 getPlayheadPositionUs() 的粒度只有约20ms, 如果直接拿来用的话精度不够
 //要进行采样和平滑演算得到playback position
 positionUs = systemClockUs + smoothedPlayheadOffsetUs
 = systemClockUs + avg[playbackPositionUs(i) – systemClock(i)]
 positionUs -= latencyUs ;
-
-复制代码
 ```
 
 上式中i最大取10，因为getPlayheadPositionUs的精度不足以用来做音视频同步，所以这里通过计算每次getPlayheadPositionUs拿到的值与系统时钟的offset，并且取平均值，来解决精度不足的问题，平滑后的值即为smoothedPlayheadOffsetUs，再加上系统时钟即为“Audio当前播放的时间”。当然，最后要减去通过AudioTrack.getLatency方法获取到的底层delay值，才是最终的结果。
 
 ## 小结
 
-总体来说，音视频同步机制中的同步基准有两种选择：利用系统时间或audio playback position. 如果是video only的流，则利用系统时间，这方面比较简单，不再赘述 a. 如果是用audio position的话, 首先明确是通过下式来计算 startMediaTimeUs + positionUs 式中startMediaTimeUs为码流中拿到的初始audio pts值, positionUs是一个以0为起点的时间值,代表audio 播放了多长时间的数据
+总体来说，音视频同步机制中的同步基准有两种选择：利用系统时间或audio playback position. 如果是video only的流，则利用系统时间，这方面比较简单，不再赘述 
+
+a. 如果是用audio position的话, 首先明确是通过下式来计算 startMediaTimeUs + positionUs 式中startMediaTimeUs为码流中拿到的初始audio pts值, positionUs是一个以0为起点的时间值,代表audio 播放了多长时间的数据
 
 b.计算positionUs值则有两个方法, 根据设备支持情况来选择:
 
-b.1.用AudioTimeStamp值来计算，需要注意的是，因为getTimeStamp方法不建议频繁调用，在ExoPlayer中是以500ms为间隔调用的，所以对应的逻辑可以化简为: positionUs = framePosition/sampleRate + systemClock – nanoTime/1000
+​	b.1.用AudioTimeStamp值来计算，需要注意的是，因为getTimeStamp方法不建议频繁调用，在ExoPlayer中是以500ms为间隔调用的，所以对应的逻辑可以化简为: positionUs = framePosition/sampleRate + systemClock – nanoTime/1000
 
-b.2. 用audioTrack.getPlaybackHeadPosition方法来计算, 但是因为这个值的粒度只有20ms, 可能存在一些抖动, 所以做了一些平滑处理, 对应的逻辑可以化简为: positionUs = systemClockUs + smoothedPlayheadOffsetUs - latencyUs = systemClockUs + avg[playbackPositionUs(i) - systemClock(i)] - latencyUs = systemClockUs + avg[(audioTrack.getPlaybackHeadPosition/sampleRate)(i) -systemClock(i)] - latencyUs
+​	b.2. 用audioTrack.getPlaybackHeadPosition方法来计算, 但是因为这个值的粒度只有20ms, 可能存在一些抖动, 所以做了一些平滑处理, 对应的逻辑可以化简为: positionUs = systemClockUs + smoothedPlayheadOffsetUs - latencyUs = systemClockUs + avg[playbackPositionUs(i) - systemClock(i)] - latencyUs = systemClockUs + avg[(audioTrack.getPlaybackHeadPosition/sampleRate)(i) -systemClock(i)] - latencyUs
 
 # ExoPlayer avsync逻辑代码精读
 
 还是一样，先来看video部分，avsync逻辑的入口在下面的方法
 
-## 1.
+## 1. com.google.android.exoplayer2.video.MediaCodecVideoRenderer#processOutputBuffer
 
-```arduino
-com.google.android.exoplayer2.video.MediaCodecVideoRenderer#processOutputBuffer
+```java
+//com.google.android.exoplayer2.video.MediaCodecVideoRenderer#processOutputBuffer
 protected boolean processOutputBuffer(long positionUs/*当前播放时间，由系统时间或audioClock计算*/, long elapsedRealtimeUs, MediaCodec codec,
     ByteBuffer buffer, int bufferIndex, int bufferFlags, long bufferPresentationTimeUs/*当前帧的pts*/,
     boolean shouldSkip) {
@@ -258,8 +255,6 @@ earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
   }
   ．．．．
 }
-
-复制代码
 ```
 
 ## 1.1
@@ -346,8 +341,6 @@ public long adjustReleaseTime(long framePresentationTimeUs, long unadjustedRelea
 //利用dumpsys SurfaceFlinger --latency SurfaceView方法我们可以知道每一帧的desiredPresentationTime和actualPresentationTime，经过实测，在某些平台上这两个值差距在一个vsync时间以上，一般为22ms左右，所以ExoPlayer里面设置的这个0.8的系数不甚合理。其次我们观察了NuPlayer的avsync逻辑，发现在NuPlayer就是严格按照API注释所说的，提前两个vsync时间调用release方法。
   return snappedTimeNs - vsyncOffsetNs;
 }
-
-复制代码
 ```
 
 ## 1.1.1
@@ -376,7 +369,7 @@ private static long closestVsync(long releaseTime, long sampledVsyncTime, long v
   return snappedAfterDiff < snappedBeforeDiff ? snappedAfterNs : snappedBeforeNs;
 }
 
-复制代码
+
 ```
 
 ## 1.1.2
@@ -393,7 +386,7 @@ private boolean isDriftTooLarge(long frameTimeNs, long releaseTimeNs) {
   return Math.abs(elapsedReleaseTimeNs - elapsedFrameTimeNs) > MAX_ALLOWED_DRIFT_NS;
 }
 
-复制代码
+
 ```
 
 ## 1.2
@@ -417,7 +410,7 @@ protected boolean shouldDropOutputBuffer(long earlyUs, long elapsedRealtimeUs) {
   return earlyUs < -frameDropThres;
 }
 
-复制代码
+
 ```
 
 ## 1.3
@@ -441,7 +434,7 @@ private void dropOutputBuffer(MediaCodec codec, int bufferIndex) {
   }
 }
 
-复制代码
+
 ```
 
 ## 1.4
@@ -460,7 +453,7 @@ private void renderOutputBufferV21(MediaCodec codec, int bufferIndex, long relea
   maybeNotifyRenderedFirstFrame();
 }
 
-复制代码
+
 ```
 
 核心是调用了如下的API
@@ -502,7 +495,7 @@ android.media.MediaCodec#releaseOutputBuffer(int, long)
  */
 public final void releaseOutputBuffer(int index, long renderTimestampNs)
 
-复制代码
+
 ```
 
 下面来看audio部分，在上面介绍video的同步逻辑时, 提到了下面的函数processOutputBuffer, 他的一个入参是positionUs, 这个值代表当前音频播放时间,由系统时钟或者audioClock来计算,下面就来看一下它是如何计算出来的, 关键代码如下
@@ -528,7 +521,7 @@ private void updatePlaybackPositions() throws ExoPlaybackException {
   }
   ...
 }
-复制代码
+
 ```
 
 先来看比较简单的方法, 也就是用系统时间计算renderposition的方法
@@ -551,7 +544,7 @@ public long getPositionUs() {
   return positionUs;
 }
 
-复制代码
+
 ```
 
 ## 2.1.1
@@ -567,7 +560,7 @@ public void setPositionUs(long positionUs) {
   }
 }
 
-复制代码
+
 ```
 
 ## 2.2
@@ -586,7 +579,7 @@ public long getPositionUs() {
   return currentPositionUs;
 }
 
-复制代码
+
 ```
 
 实际上调用的是exoplayer所封装的audioTrack的 getCurrentPositionUs方法
@@ -648,7 +641,7 @@ public long getCurrentPositionUs(boolean sourceEnded) {
   return startMediaTimeUs + applySpeedup(positionUs);
 }
 
-复制代码
+
 ```
 
 ## 2.2.1
@@ -748,7 +741,7 @@ private void maybeSampleSyncParams() {
   }
 }
 
-复制代码
+
 ```
 
 计算bufferSizeUs
@@ -780,7 +773,7 @@ bufferSizeUs = passthrough ? C.TIME_UNSET : framesToDurationUs(bufferSize / outp
 ...
 }
 
-复制代码
+
 ```
 
 ## 2.2.2
@@ -822,7 +815,7 @@ private static class AudioTrackUtilV19 extends AudioTrackUtil {
   }
 }
 
-复制代码
+
 ```
 
 AudioTimestamp的定义如下，它有两个关键的变量，分别是framePostition和nanoTime, 都是从HAL层拿到的值
@@ -864,7 +857,7 @@ public final class AudioTimestamp
     public long nanoTime;
 }
 
-复制代码
+
 ```
 
 而AudioTrack.getTimeStamp方法的定义如下，注意注释中提到的，这个方法返回的值不一定总是变化的，同时注释还提到不要频繁调用它，否则会有性能上的问题
@@ -913,7 +906,7 @@ android.media.AudioTrack#getTimestamp
  //   Use if you need to get the most recent timestamp outside of the event callback handler.
  public boolean getTimestamp(AudioTimestamp timestamp)
 
-复制代码
+
 ```
 
 我们可以再往framework里面看看这个方法是如何获取到framePosition和nanoTime的，这里看的是Android M frameworks/av/media/libmedia/AudioTrack.cpp ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/92c4dd37c0064e3ea166087719a026bf~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image)
@@ -939,7 +932,7 @@ public long getPositionUs() {
   return (getPlaybackHeadPosition() * C.MICROS_PER_SECOND) / sampleRate;
 }
 
-复制代码
+
 ```
 
 利用下面方法的返回值进行计算
@@ -966,7 +959,7 @@ public long getPlaybackHeadPosition() {
   return rawPlaybackHeadPosition + (rawPlaybackHeadWrapCount << 32);
 }
 
-复制代码
+
 ```
 
 实际调用的是
@@ -986,7 +979,7 @@ android.media.AudioTrack#getPlaybackHeadPosition
  */
 public int getPlaybackHeadPosition() 
 
-复制代码
+
 ```
 
 它返回的是AudioFlinger里面的共享内存的位置，跟一下framework里面的实现如下 /frameworks/av/media/libmedia/AudioTrack.cpp
@@ -1058,7 +1051,7 @@ uint32_t    mServer;    // Number of filled frames consumed by server (mIsOut),
 ．．．
 ｝
 
-复制代码
+
 ```
 
 ## 2.2.4
@@ -1080,7 +1073,7 @@ public int getLatency() {
     return native_get_latency();
 }
 
-复制代码
+
 ```
 
 直接调用的jni frameworks/base/core/jni/android_media_AudioTrack.cpp ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8047c84e55404620923c92c21139147f~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) 直接调用的native 层，在h文件里 frameworks/av/include/media/AudioTrack.h ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6456685fc4de43bb96c9faa1edebdf43~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) frameworks/av/media/libmedia/AudioTrack.cpp ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/85c43a0d98aa41d4bec221a0b34deb70~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) mLatency在createTrack_l时赋值,afLatency从AudioFlinger获取，AudioFlinger又从hal获取frameCount从AudioTrack.cpp获得 frameworks/av/media/libmedia/AudioTrack.cpp ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1d2f301845624f309e0edf04c2065cb9~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4468c62fe82e4c80a4de4898a6ed8950~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) frameworks/av/include/media/AudioResamplerPublic.h ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6ebd4eeb126e4ab9aec55b368b36d754~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/df0537beca884df4b84de6a35bf3234b~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) 如上两部分代码是计算framecount，如果src采样率、 dst采样率 都为 48K，播放速度speed默认为1，dstFramesRequired为afFrameCount是1024 frameCount  =（1024*1  + 1 +1） * 2 = 2052
@@ -1144,7 +1137,7 @@ private long getSubmittedFrames() {
   return passthrough ? submittedEncodedFrames : (submittedPcmBytes / pcmFrameSize);
 }
 
-复制代码
+
 ```
 
 ## 2.2.6
@@ -1176,14 +1169,13 @@ android.media.AudioTrack#getMinBufferSize
  */
 static public int getMinBufferSize(int sampleRateInHz, int channelConfig, int audioFormat) 
 
-复制代码
+
 ```
 
-往framework里面去看 frameworks/base/media/java/android/media/AudioTrack.java ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/082c04d5dd1b45f78a1b6a5e87a45977~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) 第一步：从java调到AudioTrack的jni接口 frameworks/base/core/jni/android_media_AudioTrack.cpp ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/133a65d20ca1405fbf929579b0034267~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) 这里frameCount从AudioTrack.cpp获得，如果channelCount 为2， bytesPerSample为2（位宽16是2个字节） 所以是buffersize = frameCount * 4;
+往framework里面去看 frameworks/base/media/java/android/media/AudioTrack.java ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/082c04d5dd1b45f78a1b6a5e87a45977~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) 第一步：从java调到AudioTrack的jni接口 frameworks/base/core/jni/android_media_AudioTrack.cpp ![这里写图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/133a65d20ca1405fbf929579b0034267~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image) 这里frameCount从AudioTrack.cpp获得，如果channelCount 为2， bytesPerSample为2（位宽16是2个字节) 所以是buffersize = frameCount * 4;
 
 
 
-作者：zhanghui_cuc
-链接：https://juejin.cn/post/7032639377914200072
-来源：稀土掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+
+> https://juejin.cn/post/7032639377914200072

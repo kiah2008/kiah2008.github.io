@@ -17,6 +17,22 @@ Android Audio latency讲解
 
 * TOC
 {:toc}
+最近在作音频的优化， 需要将参数传到audio hal， 记录下。
+
+# Android avsync
+
+
+
+# Audio::SetParameters
+
+
+
+# ExoPlayer Sync
+
+
+
+# Audio SetParameters
+
 
 
 Android source
@@ -70,6 +86,13 @@ static int adev_open(const hw_module_t* module, const char* name,
 
     return 0;
 }
+```
+
+主要关注 `set_parameters` 和`get_presentation_position`。
+
+流的结构
+
+```c++
 
 //打开流
 static int adev_open_output_stream(struct audio_hw_device *dev,
@@ -166,7 +189,53 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
 }
 ```
 
-主要关注 `set_parameters` 和`get_presentation_position`。
+
+
+## setParameters
+
+```c++
+    /**
+     * set/get audio stream parameters. The function accepts a list of
+     * parameter key value pairs in the form: key1=value1;key2=value2;...
+     *
+     * Some keys are reserved for standard parameters (See AudioParameter class)
+     *
+     * If the implementation does not accept a parameter change while
+     * the output is active but the parameter is acceptable otherwise, it must
+     * return -ENOSYS.
+     *
+     * The audio flinger will put the stream in standby and then change the
+     * parameter value.
+     */
+    int (*set_parameters)(struct audio_stream *stream, const char *kv_pairs);
+```
+
+
+
+```mermaid
+flowchart TB
+subgraph AudioFw
+AudioManager::setParameters
+AudioSystem::setParameters
+AudioManager::setParameters--native-->AudioSystem::setParameters
+end
+
+subgraph AudioFlinger
+AudioFlinger::setParameters
+end
+
+AudioSystem::setParameters--IAudioFlinger-->AudioFlinger::setParameters--> DeviceHalHidl::setParameters
+%% sp<DeviceHalInterface> dev = mAudioHwDevs.valueAt(i)->hwDevice();
+DeviceHalHidl::setParameters-->Device::setParameters
+
+Stream["Stream[In|Out]"]-->streamHalHidl::setParameters --> stream::halSetParameters --> submix_stream_out::set_parameters
+```
+
+
+
+
+
+# getTimestamp
 
 ```c
     /* return the number of audio frames written by the audio dsp to DAC since
@@ -325,6 +394,10 @@ status_t    threadloop_getHalTimestamp_l(ExtendedTimestamp *timestamp) const ove
     //   Use if you need to get the most recent timestamp outside of the event callback handler.
     public boolean getTimestamp(AudioTimestamp timestamp)
 ```
+
+
+
+frameworks/av/media/libmediahelper/include/media/AudioParameter.h
 
 
 
