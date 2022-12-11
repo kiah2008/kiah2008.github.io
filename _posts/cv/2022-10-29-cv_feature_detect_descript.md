@@ -1,22 +1,37 @@
-最近在搞一个实时拼接的任务， 所以总结以下相关知识。
+---
+layout: post
+title: Opencv特征检测和匹配经验分享
+categories: [cv]
+tags: [opencv]
+description: Opencv特征检测和匹配经验分享
+keywords: opencv feature detect and compute
+dashang: true
+topmost: false
+mermaid: false
+date:  2022-10-29 21:00:00 +0900
+---
+
+最近在搞一个实时拼接的任务，会用到CV的特征匹配和单应性矩阵进行全景拼接， 所以总结以下相关知识。
+
+<!-- more -->
 
 # 1. 介绍
 
-特征匹配（Feature Match)是计算机视觉中很多应用的基础，比如说图像配准，摄像机跟踪，三维重建，物体识别，[人脸识别](https://cloud.tencent.com/product/facerecognition?from=10680)，所以花一些时间去深入理解这个概念是不为过的。本文希望通过一种通俗易懂的方式来阐述特征匹配这个过程，以及在过程中遇到的一些问题。
+特征匹配（Feature Match)是计算机视觉中很多应用的基础，比如说图像配准，摄像机跟踪，三维重建，物体识别，人脸识别，所以花一些时间去深入理解这个概念是不为过的。本文希望通过一种通俗易懂的方式来阐述特征匹配这个过程，以及在过程中遇到的一些问题。
 
 首先我通过几张图片来指出什么是特征匹配，以及特征匹配的过程。
 
-图像一：彩色圆圈为图像的特征点
+图像一：彩色圆圈为图像的特征点(周围像素发生变化，描述为矢量)
 
-![image-20221030201400980](assets/image-20221030201400980.png)
+![image-20221030201400980](/images/cv/cv_feature_detect_descript/image-20221030201400980.png)
 
 图像二：
 
-![image-20221030201445224](assets/image-20221030201445224.png)
+![image-20221030201445224](/images/cv/cv_feature_detect_descript/image-20221030201445224.png)
 
 图像一与图像二的匹配：
 
-![image-20221030201524481](assets/image-20221030201524481.png)
+![image-20221030201524481](/images/cv/cv_feature_detect_descript/image-20221030201524481.png)
 
 ## **1.1 概念理解：什么是特征，什么是特征描述，什么是特征匹配**
 
@@ -24,9 +39,9 @@
 
 假设这样的一个场景，小白和小黑都在看一个图片，但是他们想知道他们看的是否是同一幅图片，于是他们就通过电话描述这个图片，来判断是否是同一个图片。比如说有下面两个图片
 
-![img](/home/kiah/worktmp/kiah2008.github.io/_drafts/cv/assets/1620-1667054861042-14.png)
+![img](/images/cv/cv_feature_detect_descript/1620-1667054861042-14.png)
 
-![img](/home/kiah/worktmp/kiah2008.github.io/_drafts/cv/assets/1620-1667054859398-11.png)
+![img](/images/cv/cv_feature_detect_descript/1620-1667054859398-11.png)
 
 对话1：
 
@@ -68,9 +83,9 @@ C-->[*]
 
 再看下面两张图片：
 
-![img](/home/kiah/worktmp/kiah2008.github.io/_drafts/cv/assets/1620-1667054863485-17.png)
+![img](/images/cv/cv_feature_detect_descript/1620-1667054863485-17.png)
 
-![img](/home/kiah/worktmp/kiah2008.github.io/_drafts/cv/assets/1620-1667054868884-20.png)
+![img](/images/cv/cv_feature_detect_descript/1620-1667054868884-20.png)
 
 于是我们在看审视三个对话，你会发现对话2就改变了。
 
@@ -84,9 +99,9 @@ C-->[*]
 
 **那么如何实现旋转不变性呢，再看下面两张图片：**
 
-![img](/home/kiah/worktmp/kiah2008.github.io/_drafts/cv/assets/1620-1667054871521-23.png)
+![img](/images/cv/cv_feature_detect_descript/1620-1667054871521-23.png)
 
-![img](/home/kiah/worktmp/kiah2008.github.io/_drafts/cv/assets/1620-1667054872838-26.png)
+![img](/images/cv/cv_feature_detect_descript/1620-1667054872838-26.png)
 
 然后我们再来审视对话2：
 
@@ -102,9 +117,9 @@ C-->[*]
 
 接下来谈一下尺度不变性，依然看下面两张图片：
 
-![img](/home/kiah/worktmp/kiah2008.github.io/_drafts/cv/assets/1620-1667054875603-29.jpeg)
+![img](/images/cv/cv_feature_detect_descript/1620-1667054875603-29.jpeg)
 
-![img](/home/kiah/worktmp/kiah2008.github.io/_drafts/cv/assets/1620-1667054877608-32.jpeg)
+![img](/images/cv/cv_feature_detect_descript/1620-1667054877608-32.jpeg)
 
 对话2：
 
@@ -122,7 +137,7 @@ C-->[*]
 
 下面是我根据上面的方式对常用的Feature所做的总结。
 
-![img](assets/1620-1667054891988-35.jpeg)
+![img](/images/cv/cv_feature_detect_descript/1620-1667054891988-35.jpeg)
 
 
 
@@ -280,9 +295,9 @@ public:
 
 KAZE 是为了纪念“尺度空间分析之父” Iijima 而取得名字，在日语中是 “风” 的意思，发音“卡哉”；AKAZE 是 Accelerated KAZE，顾名思义是 KAZE 的加速版本
 
-![img](assets/v2-e5eb7ff73dc760623fd1fd0e80c0a105_720w.webp)
+![img](/images/cv/cv_feature_detect_descript/v2-e5eb7ff73dc760623fd1fd0e80c0a105_720w.webp)
 
-![img](assets/v2-a160799c650995d09ebf0768a86598fa_720w.webp)
+![img](/images/cv/cv_feature_detect_descript/v2-a160799c650995d09ebf0768a86598fa_720w.webp)
 
 
 
@@ -321,7 +336,7 @@ static Ptr<AKAZE> create(
 
 
 
-![frame.png](https://docs.opencv.org/4.x/frame.png)
+![frame.png](/images/cv/cv_feature_detect_descript/frame.png)
 
 # 3. 特征提取代码例程
 
@@ -371,15 +386,13 @@ int main()
 
 ## 3.1 各算法的特征检测效果
 
-![image-20221030211405073](assets/image-20221030211405073.png)
+![image-20221030211405073](/images/cv/cv_feature_detect_descript/image-20221030211405073.png)
 
-![image-20221030211747102](assets/image-20221030211747102.png)
+![image-20221030211747102](/images/cv/cv_feature_detect_descript/image-20221030211747102.png)
 
-![image-20221030211826969](assets/image-20221030211826969.png)
+![image-20221030211826969](/images/cv/cv_feature_detect_descript/image-20221030211826969.png)
 
-![image-20221030211852225](assets/image-20221030211852225.png)
-
-
+![image-20221030211852225](/images/cv/cv_feature_detect_descript/image-20221030211852225.png)
 
 
 
@@ -387,15 +400,17 @@ int main()
 
 
 
-![image-20221030205858616](assets/image-20221030205858616.png)
 
-![image-20221030205924748](assets/image-20221030205924748.png)
 
-![image-20221030211954228](assets/image-20221030211954228.png)
+![image-20221030205858616](/images/cv/cv_feature_detect_descript/image-20221030205858616.png)
 
-![image-20221030212024629](assets/image-20221030212024629.png)
+![image-20221030205924748](/images/cv/cv_feature_detect_descript/image-20221030205924748.png)
 
-![image-20221030212049492](assets/image-20221030212049492.png)
+![image-20221030211954228](/images/cv/cv_feature_detect_descript/image-20221030211954228.png)
+
+![image-20221030212024629](/images/cv/cv_feature_detect_descript/image-20221030212024629.png)
+
+![image-20221030212049492](/images/cv/cv_feature_detect_descript/image-20221030212049492.png)
 
 默认参数
 
@@ -686,9 +701,9 @@ void FeatureMatchTest::refineMatcheswithHomography(vector<DMatch>& matches, doub
 
 | **基础矩阵后的过滤**                                         | **单应矩阵后的过滤**                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [![Homography](assets/122207514175659.jpg)](https://images0.cnblogs.com/blog/439761/201503/122207495895600.jpg) | [![Homography](assets/122207561367435.jpg)](https://images0.cnblogs.com/blog/439761/201503/122207547141733.jpg) |
+| [![Homography](/images/cv/cv_feature_detect_descript/122207514175659.jpg)](https://images0.cnblogs.com/blog/439761/201503/122207495895600.jpg) | [![Homography](/images/cv/cv_feature_detect_descript/122207561367435.jpg)](https://images0.cnblogs.com/blog/439761/201503/122207547141733.jpg) |
 | **交叉过滤**                                                 | **KNNMatch**                                                 |
-| [![crossfilter](assets/122208000426394.jpg)](https://images0.cnblogs.com/blog/439761/201503/122207589173950.jpg) | [![knn](assets/122208037778768.jpg)](https://images0.cnblogs.com/blog/439761/201503/122208026208081.jpg) |
+| [![crossfilter](/images/cv/cv_feature_detect_descript/122208000426394.jpg)](https://images0.cnblogs.com/blog/439761/201503/122207589173950.jpg) | [![knn](/images/cv/cv_feature_detect_descript/122208037778768.jpg)](https://images0.cnblogs.com/blog/439761/201503/122208026208081.jpg) |
 
  
 
