@@ -2,7 +2,7 @@
 layout: post
 title: opengl&opencv坐标系讲解
 categories: [cv]
-tags: [opengl, opengles, opencv]
+tags: [opengles, opencv]
 description: Opengl es&opencv 
 keywords: opengl es, opengl, opencv
 dashang: true
@@ -11,7 +11,7 @@ mermaid: false
 date:  2022-12-01 07:00:00 +0900
 ---
 
-description
+在图形图像开发过程中，经常会用到opencv和opengl，有时候还是会搞混坐标系，导致画面上下反转。本文记录下gl和cv的坐标差异，是不是可以温习下。
 
 <!-- more -->
 

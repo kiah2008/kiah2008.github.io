@@ -2,7 +2,7 @@
 layout: post
 title: opencv例程学习
 categories: [cv]
-tags: [opencv, sample]
+tags: [opencv]
 description: video stitch学习
 keywords: opencv, tutorial
 dashang: true
