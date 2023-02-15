@@ -399,6 +399,118 @@ status_t    threadloop_getHalTimestamp_l(ExtendedTimestamp *timestamp) const ove
 
 frameworks/av/media/libmediahelper/include/media/AudioParameter.h
 
+# update 2023/02/15
+
+
+status_t MediaSync::updateQueuedAudioData(
+        size_t sizeInBytes, int64_t presentationTimeUs) {
+    if (sizeInBytes == 0) {
+        return OK;
+    }
+
+    Mutex::Autolock lock(mMutex);
+
+    if (mAudioTrack == NULL) {
+        ALOGW("updateQueuedAudioData: audioTrack has NOT been configured.");
+        return INVALID_OPERATION;
+    }
+
+    //计算帧数
+    int64_t numFrames = sizeInBytes / mAudioTrack->frameSize();
+    //最大媒体时间
+    int64_t maxMediaTimeUs = presentationTimeUs
+            + getDurationIfPlayedAtNativeSampleRate_l(numFrames);
+
+    //本地时间
+    int64_t nowUs = ALooper::GetNowUs();
+    //当前媒体播放的媒体时间
+    int64_t nowMediaUs = presentationTimeUs
+        	//透过帧算出开始时间
+            - getDurationIfPlayedAtNativeSampleRate_l(mNumFramesWritten)
+        	//透过AudioTrack的getTimestamp计算已经播放的duration, 加上上面算出的开始时间,即为当前媒体时间
+            + getPlayedOutAudioDurationMedia_l(nowUs);
+
+    mNumFramesWritten += numFrames;
+
+    int64_t oldRealTime = -1;
+    if (mNextBufferItemMediaUs != -1) {
+        oldRealTime = getRealTime(mNextBufferItemMediaUs, nowUs);
+    }
+
+    mMediaClock->updateAnchor(nowMediaUs, nowUs, maxMediaTimeUs);
+    mHasAudio = true;
+
+    if (oldRealTime != -1) {
+        int64_t newRealTime = getRealTime(mNextBufferItemMediaUs, nowUs);
+        if (newRealTime >= oldRealTime) {
+            return OK;
+        }
+    }
+
+    mNextBufferItemMediaUs = -1;
+    onDrainVideo_l();
+    return OK;
+}
+
+//计算当前播放的duration
+int64_t MediaSync::getPlayedOutAudioDurationMedia_l(int64_t nowUs) {
+    CHECK(mAudioTrack != NULL);
+
+    uint32_t numFramesPlayed;
+    int64_t numFramesPlayedAtUs;
+    AudioTimestamp ts;
+
+    status_t res = mAudioTrack->getTimestamp(ts);
+    if (res == OK) {
+        // case 1: mixing audio tracks.
+        //帧数据
+        numFramesPlayed = ts.mPosition;
+        //当前本地时间的present timestamp
+        numFramesPlayedAtUs = ts.mTime.tv_sec * 1000000LL + ts.mTime.tv_nsec / 1000;
+        //ALOGD("getTimestamp: OK %d %lld",
+        //      numFramesPlayed, (long long)numFramesPlayedAtUs);
+    } else if (res == WOULD_BLOCK) {
+        // case 2: transitory state on start of a new track
+        numFramesPlayed = 0;
+        numFramesPlayedAtUs = nowUs;
+        //ALOGD("getTimestamp: WOULD_BLOCK %d %lld",
+        //      numFramesPlayed, (long long)numFramesPlayedAtUs);
+    } else {
+        // case 3: transitory at new track or audio fast tracks.
+        res = mAudioTrack->getPosition(&numFramesPlayed);
+        CHECK_EQ(res, (status_t)OK);
+        numFramesPlayedAtUs = nowUs;
+        numFramesPlayedAtUs += 1000LL * mAudioTrack->latency() / 2; /* XXX */
+        //ALOGD("getPosition: %d %lld", numFramesPlayed, (long long)numFramesPlayedAtUs);
+    }
+
+    //can't be negative until 12.4 hrs, test.
+    //CHECK_EQ(numFramesPlayed & (1 << 31), 0);
+    int64_t durationUs =
+        //帧数据计算的时间
+        getDurationIfPlayedAtNativeSampleRate_l(numFramesPlayed)
+        //从numFramesPlayedAtUs到nowUs的偏移时间
+            + nowUs - numFramesPlayedAtUs;
+    if (durationUs < 0) {
+        // Occurs when numFramesPlayed position is very small and the following:
+        // (1) In case 1, the time nowUs is computed before getTimestamp() is
+        //     called and numFramesPlayedAtUs is greater than nowUs by time more
+        //     than numFramesPlayed.
+        // (2) In case 3, using getPosition and adding mAudioTrack->latency()
+        //     to numFramesPlayedAtUs, by a time amount greater than
+        //     numFramesPlayed.
+        //
+        // Both of these are transitory conditions.
+        ALOGV("getPlayedOutAudioDurationMedia_l: negative duration %lld "
+              "set to zero", (long long)durationUs);
+        durationUs = 0;
+    }
+    ALOGV("getPlayedOutAudioDurationMedia_l(%lld) nowUs(%lld) frames(%u) "
+          "framesAt(%lld)",
+          (long long)durationUs, (long long)nowUs, numFramesPlayed,
+          (long long)numFramesPlayedAtUs);
+    return durationUs;
+}
 
 
 
