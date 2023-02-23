@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Android UID理解
-categories: [android, uid]
+categories: [android]
 tags: [uid, android]
 description: Android UID理解
 keywords: android uid
