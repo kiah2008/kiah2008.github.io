@@ -2,7 +2,7 @@
 layout: post
 title: Android UID理解
 categories: [android]
-tags: [uid, android]
+tags: [uid, share uid]
 description: Android UID理解
 keywords: android uid
 dashang: true

@@ -1,4 +1,22 @@
+---
+layout: post
+title: Android低延迟音频
+categories: [android]
+tags: [audio]
+description: Android低延迟音频
+keywords: android low latency
+dashang: true
+topmost: false
+mermaid: false
+date:  2023-02-01 21:00:00 +0900
+---
 Android High performance audio
+
+<!-- more -->
+
+* TOC
+{:toc}
+
 
 # 音频延迟
 
@@ -9,8 +27,6 @@ Android High performance audio
 - **往返延迟时间**是指输入延迟时间、应用处理时间和输出延迟时间的总和。
 - **触摸延迟时间**是指从用户触摸屏幕到应用接收到触摸事件之间经历的时间。
 - **预热延迟时间**是指数据第一次在缓冲区加入队列后启动音频管道所需的时间。
-
-
 
 
 
