@@ -1,7 +1,4 @@
 - sitename: Mail
-  name: Mail to kiah2008
+  name: Write mail to me
   url: mail://kiah2008@qq.com
 
-- sitename: GitHub
-  name: Browse kiah2008's github
-  url: https://github.com/kiah2008
