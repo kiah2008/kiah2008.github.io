@@ -7,7 +7,7 @@ description: ExoPlayer介绍及AVSync
 keywords: avsync
 dashang: true
 topmost: false
-mermaid: false
+mermaid: true
 date:  2023-02-24 23:00:00 +0900
 ---
 本文尝试介绍Android ExoPlayer实现，从中学习音频/视频的相关知识。
@@ -246,6 +246,7 @@ class EventDispatcher {
 
 ## DefaultExtractorsFactory
 
+```
 An ExtractorsFactory that provides an array of extractors for the following formats:
 MP4, including M4A (Mp4Extractor)
 fMP4 (FragmentedMp4Extractor)
@@ -265,6 +266,7 @@ If available, the FLAC extension's com.google.android.exoplayer2.ext.flac.FlacEx
 Otherwise, the core FlacExtractor is used. Note that Android devices do not generally include a FLAC decoder before API 27. This can be worked around by using the FLAC extension or the FFmpeg extension.
 JPEG (JpegExtractor)
 MIDI, if available, the MIDI extension's com.google.android.exoplayer2.decoder.midi.MidiExtractor is used.
+```
 
 ## ExoPlayerImpl
 
