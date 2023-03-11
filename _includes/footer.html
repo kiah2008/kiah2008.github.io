@@ -51,8 +51,21 @@
     -->
 
     {% if page.mermaid %}
-    <script src="{{ site.open_cdn.mermaid }}"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="{{ site.open_cdn.mermaid }}" async
+    onload="initMermaid()"></script>
+    <script>
+    function initMermaid() {
+    var config = {
+        startOnLoad: true,
+        flowchart:{
+        useMaxWidth: true,
+        htmlLabels: true
+        }
+    };
+    mermaid.initialize(config);
+    window.mermaid.init(undefined, document.querySelectorAll('.language-mermaid'));
+    }
+    </script>
     {% endif %}
 
     {% if page.sequence %}
