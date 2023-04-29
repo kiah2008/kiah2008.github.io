@@ -85,7 +85,7 @@ sudo visudo
 在文件最后加上一句（改为自己的用户名）：
 
 ```text
-pengzhihui ALL=(ALL) NOPASSWD: ALL
+[user_name] ALL=(ALL) NOPASSWD: ALL
 ```
 
 ### **2.2 配置国内镜像软件源**
@@ -244,7 +244,7 @@ sudo systemctl restart xrdp
 
 有几种方法:
 
-- 可以直接用类似[花生壳](https://link.zhihu.com/?target=https%3A//hsk.oray.com/)这样的DDNS服务平台做转发实现内网穿透，优点是比较简单稳定，缺点是需要持续付费，而且速度和延迟效果一般，而且每加一个端口都要额外付费。
+- 可以直接用类似[花生壳](https://hsk.oray.com/)这样的DDNS服务平台做转发实现内网穿透，优点是比较简单稳定，缺点是需要持续付费，而且速度和延迟效果一般，而且每加一个端口都要额外付费。
 - 也可以像我一样使用frp之类的软件做反向代理来实现内网穿透，这个方案也是需要你有一台带公网IP的云服务器的，优点就是完全可控，自己想配置多少个端口的穿透都可以，速度跟你的云服务器带宽有关。
 
 > 为什么需要多个端口？ 是因为不同应用占用的端口不同，比如我们的SSH走的是22号端口，而远程桌面的rdp走的是3389号端口，如果需要自建Web服务的话则是走80/443端口、想把工作站作为上外网的代理服务器的话会需要1080端口等等...所以用上面第二个方案显然会方便很多，而且云服务器也不贵，我在腾讯云上购买一年只要200左右。
@@ -255,7 +255,7 @@ frp分为frps（server）和frpc（client）两个包 ，其中前者安装到�
 
 **云服务器端：**
 
-去[这里](https://link.zhihu.com/?target=https%3A//github.com/fatedier/frp/releases)下载适合你服务器系统的frp软件，我这里是用的是腾讯云64位Ubuntu16.04所以选择[frp_0.34.3_linux_amd64.tar.gz](https://link.zhihu.com/?target=https%3A//github.com/fatedier/frp/releases/download/v0.34.3/frp_0.34.3_linux_amd64.tar.gz)，下好之后解压：
+去[这里](https://github.com/fatedier/frp/releases)下载适合你服务器系统的frp软件，我这里是用的是腾讯云64位Ubuntu16.04所以选择[frp_0.34.3_linux_amd64.tar.gz](https://github.com/fatedier/frp/releases/download/v0.34.3/frp_0.34.3_linux_amd64.tar.gz)，下好之后解压：
 
 ```text
 tar -zxvf frp_0.34.3_linux_amd64.tar.gz
@@ -287,7 +287,7 @@ tar -zxvf frp_0.34.3_linux_amd64.tar.gz
 
 **本地的深度学习服务器端：**
 
-1. 下载相应版本的frpc软件包（跟刚刚一样的）：[Releases · fatedier/frp (github.com)](https://link.zhihu.com/?target=https%3A//github.com/fatedier/frp/releases)，这里选amd64的，下好之后解压到一个临时文件夹。
+1. 下载相应版本的frpc软件包（跟刚刚一样的）：[Releases · fatedier/frp (github.com)](https://github.com/fatedier/frp/releases)，这里选amd64的，下好之后解压到一个临时文件夹。
 2. 修改frpc.ini配置文件，内容如下：
 
 ```text
@@ -389,9 +389,9 @@ sudo nano /etc/samba/smb.conf
 # 说明信息
 comment = Fusion WorkStation Storage
 # 可以访问的用户
-valid users = pengzhihui,root
+valid users = [user_name],root
 # 共享文件的路径
-path = /home/pengzhihui/
+path = /home/[user_name]/
 # 可被其他人看到资源名称（非内容）
 browseable = yes
 # 可写
@@ -435,6 +435,29 @@ sudo /etc/init.d/samba-ad-dc restart
 选择刚刚服务器的网络路径即可添加：
 
 ![img](assets/v2-c54912cf0729235850d0f404a769b196_720w.png)
+
+
+
+## **2.7 install chinese input method(pinyin) **
+
+在Linux系统上，常见的输入法框架（Keyboard input method system）有三种：**IBus**（Intelligent Input Bus）、**Fcitx**（FlexibleInput Method Framework）、**XIM**（X Input Method）。在Ubuntu20.04系统中，默认已经安装了IBus和XIM这两种输入法框架，Fcitx需要自己安装。
+
+如下所示，每种输入法框架下，都有其支持的中文输入法（有些是框架自带的，有些需要另外安装）：
+
+- **Fcitx**：谷歌拼音、搜狗拼音、搜狗五笔拼音
+- **IBus**：智能拼音，五笔（86版）
+- **XIM**：略(现在用的相对比较少)
+
+```
+sudo apfcitx-pinyin
+sudo apt install  fcitx-googlepinyin
+```
+
+选择输入法框架， fcitx。
+
+在右侧状态栏会多一个键盘的图标，点击图标后，设置输入法，选择google pinyin。
+
+
 
 ## **3. DL开发环境配置篇**
 
@@ -485,7 +508,7 @@ sudo apt upgrade
 
 安装CUDA：
 
-1. 去官网下载cuda安装包：[CUDA Toolkit 11.0 Download | NVIDIA Developer](https://link.zhihu.com/?target=https%3A//developer.nvidia.com/cuda-11.0-download-archive)，相关选项如下（根据实际情况选择）：
+1. 去官网下载cuda安装包：[CUDA Toolkit 11.0 Download | NVIDIA Developer](https://developer.nvidia.com/cuda-11.0-download-archive)，相关选项如下（根据实际情况选择）：
 
 ![img](assets/v2-667ab3e5e1f8de904b454bbb56c25b4a_720w.webp)
 
@@ -556,7 +579,7 @@ sudo apt-get -y install cuda
 
 ### **3.3 安装CuDNN(注意选择匹配cuda的版本）**
 
-进入到CUDNN的下载官网：[cuDNN Download | NVIDIA Developer](https://link.zhihu.com/?target=https%3A//developer.nvidia.com/rdp/cudnn-download)，然点击Download开始选择下载版本，当然在下载之前还有登录，选择版本界面如下：
+进入到CUDNN的下载官网：[cuDNN Download | NVIDIA Developer](https://developer.nvidia.com/rdp/cudnn-download)，然点击Download开始选择下载版本，当然在下载之前还有登录，选择版本界面如下：
 
 ![img](assets/v2-b39bf69766e2bff31548cd2ccbb6e003_720w.webp)
 
@@ -595,7 +618,7 @@ sudo apt-get -y install cuda
 
 下面介绍怎么安装conda：
 
-1. 在Anaconda官网下载Linux安装包：[Anaconda | Individual Edition](https://link.zhihu.com/?target=https%3A//www.anaconda.com/products/individual)
+1. 在Anaconda官网下载Linux安装包：[Anaconda | Individual Edition](https://www.anaconda.com/products/individual)
 2. 运行下面的命令安装：
 
 ```text
@@ -604,7 +627,7 @@ chmod +x Anaconda3-2020.11-Linux-x86_64.sh
 ./Anaconda3-2020.11-Linux-x86_64.sh
 ```
 
-一路按ENTER确认，然后根据提示输入yes，这里我为了目录整洁不安装在默认路径，设置为下面的路径：`/home/pengzhihui/Softwares/anaconda`
+一路按ENTER确认，然后根据提示输入yes，这里我为了目录整洁不安装在默认路径，设置为下面的路径：`/home/[user_name]/Softwares/anaconda`
 
 然后会询问你是否要初始化conda，输入yes确认，重开终端窗口之后，就可以看到conda环境可用了（base代表默认环境）：
 
@@ -622,13 +645,29 @@ Docker的具体使用可以自己搜索一下很多教程，这里主要介绍�
 
 > 以前为了配置nvidia-docker，需要安装完docker之后再安装单独的nvidia docker2，而现在只需要安装nvidia container toolkit即可，更加方便了。
 
-1. docker安装 官网上有详细的介绍：[Install Docker Engine on Ubuntudocs.docker.com](https://link.zhihu.com/?target=https%3A//docs.docker.com/engine/install/ubuntu/) 或者运行下面的命令安装：
+1. docker安装 官网上有详细的介绍：[Install Docker Engine on Ubuntudocs.docker.com](https://docs.docker.com/engine/install/ubuntu/) 或者运行下面的命令安装：
 
 ```text
+#uninstall old docker version
+sudo apt-get remove docker docker-engine docker.io containerd runc
 sudo apt-get update
-sudo apt-get install docker.io
-systemctl start docker
-systemctl enable docker
+sudo apt-get install \
+	ca-certificates \
+	curl \
+	gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+# verify
+sudo docker run hello-world
 ```
 
 可以运行这条命令检查是否安装成功：
@@ -637,37 +676,69 @@ systemctl enable docker
 docker version
 ```
 
+add current user to docker group
+
+```
+sudo adduser [name] docker
+# using id to check if supplementary group has been added.
+id
+# restart system
+```
+
+
+
 2. 安装NVIDIA Container Toolkit
 
 ![img](assets/v2-d14822f24718d0c322ddf0a42c976c94_720w.png)
 
-官网安装步骤：[NVIDIA/nvidia-docker: Build and run Docker containers leveraging NVIDIA GPUs (github.com)](https://link.zhihu.com/?target=https%3A//github.com/NVIDIA/nvidia-docker) 或者直接运行下面的命令：
+官网安装步骤：[NVIDIA/nvidia-docker: Build and run Docker containers leveraging NVIDIA GPUs (github.com)](https://github.com/NVIDIA/nvidia-docker) 或者直接运行下面的命令：
 
 ```text
- ##首先要确保已经安装了nvidia driver
- # 2. 添加源
- distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
- curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
- curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
- 
- # 2. 安装并重启
- sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
- sudo systemctl restart docker
+##首先要确保已经安装了nvidia driver
+# 1. 添加源
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+# 2. 安装并重启
+sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
+
+install docker image, refer to the nvidia-smi's cuda version.
+
+```
+docker pull nvidia/cuda:12.1.0-base-ubuntu20.04
 ```
 
 安装完成后可以新建一个容器测试一下：
 
 ```text
-sudo docker run -it --name test_nvidia_docker --gpus all nvidia/cuda:11.1-base 
+sudo docker run -it --name test_nvidia_docker --gpus all nvidia/cuda:12.1.0-base-ubuntu20.04
 ```
 
-其中最后的参数`nvidia/cuda:11.1-base` 是Nvidia官方的镜像，需要根据工作站主机中实际安装的cuda版本进行修改，版本可以用`nvcc -V`查看。
+其中最后的参数`nvidia/cuda:12.1.0-base-ubuntu20.04` 是Nvidia官方的镜像，需要根据工作站主机中实际安装的cuda版本进行修改，版本可以用`nvcc -V`查看。
 
 进入容器之后可以跑一下`nvidia-smi`命令看看：
 
-![img](assets/v2-8fde5b9337783ded35eb9ed05bb6871a_720w.webp)
+```
+# nvidia-smi
+---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 530.30.02              Driver Version: 530.30.02    CUDA Version: 12.1     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                  Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf            Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA GeForce RTX 2070 S...    On | 00000000:01:00.0 Off |                  N/A |
+|  0%   40C    P8               25W / 215W|    345MiB /  8192MiB |      2%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+```
 
 现在可以在docker里面正常使用GPU啦~
+
+
 
 ### **3.6 测试**
 
@@ -697,17 +768,32 @@ sudo docker run -it --name test_nvidia_docker --gpus all nvidia/cuda:11.1-base
 
 如果看到使用的确实是我们设置的环境目录中的pip的话说明就ok。
 
-接下来在环境中安装pytorch，可以参考官网的安装命令：[Start Locally | PyTorch](https://link.zhihu.com/?target=https%3A//pytorch.org/get-started/locally/)
+接下来在环境中安装pytorch，可以参考官网的安装命令：[Start Locally | PyTorch](https://pytorch.org/get-started/locally/)
 
 ![img](assets/v2-81da3503ad421952832b6f9999b5886d_720w.webp)
 
 输入以下命令进行安装：
 
 ```text
- pip install torch==1.7.0+cu110 torchvision==0.8.1+cu110 torchaudio===0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
+#cu118/torch-2.0.0%2Bcu118-cp38-cp38-linux_x86_64.whl
+#cu118/torchvision-0.15.1%2Bcu118-cp39-cp39-linux_x86_64.whl
+#cu118/torchaudio-2.0.1%2Bcu118-cp38-cp38-linux_x86_64.whl
+
+pip install torch==2.0.0+cu118 torchvision==0.15.1+cu118 torchaudio==2.0.1+cu118 -f https://download.pytorch.org/whl/torch_stable.html 
 ```
 
-环境配置就完成了，下面新建一个简单的测试脚本验证功能，新建`mnist_train.py`，内容如下：
+环境配置就完成了，启动python，检查一下cuda
+
+```
+Python 3.8.10 (default, Mar 13 2023, 10:26:41) 
+[GCC 9.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import torch
+>>> print(torch.cuda.is_available())
+# True
+```
+
+测试训练，新建`mnist_train.py`，内容如下：
 
 ```text
 import torch
@@ -789,11 +875,13 @@ if __name__ == '__main__':
  sudo docker run  -it  --name train_mnist \
  -v /etc/timezone:/etc/timezone \
  -v /etc/localtime:/etc/localtime \
- -v /home/pengzhihui/WorkSpace/_share:/home/workspace/_share  \
- --gpus all nvidia/cuda:11.1-base
+ -v /home/[user_name]/WorkSpace/_share:/home/workspace/_share  \
+ --gpus all nvidia/cuda:12.1.0-base-ubuntu20.04
 ```
 
-就进入到了带gpu的ubuntu20.04容器中，效果可以参考文章开头的视频。按照前面的配置方法同样配置好pytorch和其他软件包，然后运行同样的脚本，也可以得到上述输出，说明gpu在docker中正常工作。
+就进入到了带gpu的ubuntu20.04容器中按照前面的配置方法同样配置好pytorch和其他软件包，然后运行同样的脚本，也可以得到上述输出，说明gpu在docker中正常工作。
+
+
 
 ## **4. 工作站维护篇**
 
