@@ -21,15 +21,9 @@ date:  2023-04-16 21:00:00 +0900
 
 ### **1.1 工作站配置选型**
 
-秀一下知乎稚晖君的设备， 我等屌丝只能望洋兴叹了。
-
-![img](assets/v2-d30b90f83e493db7559403bfd3c153ea_720w.webp)
-
-配件全家福
-
 服务器的配置以个人使用性价比为主，同时考虑到以后的扩展性像是主板和机箱这些配件配置设置一些冗余。首先是CPU平台的选择，虽然AMD这两年实在是香，但是作为生产力工具考虑到软件库的兼容性问题，还是决定选择intel平台里十代X系列CPU+X299主板，算是比较稳的方案，而且某东上CPU搭配主板套装一起买也性价比也很高。GPU方面今年的30系显卡都比较良心，使用两块3080或者一块3090都是很给力的，24G的显存也已经跟TITAN RTX持平了（价格却只要一半）...这里考虑到主板上只能插两块PCIEx16的卡，为了以后可能的提升性能还需要再加一块卡，所以3090是最佳选择。
 
-最后选定的配置如下：
+最后选定的配置(目前已经有些落后了， 可以参考13代CPU和RTX4090显卡）如下：
 
 - **CPU**：i9-10920X
 - **显卡GPU**：七彩虹RTX3090 Advance
@@ -47,11 +41,9 @@ date:  2023-04-16 21:00:00 +0900
 
 总之就是快乐的玩具拼装过程~
 
-机箱尺寸比较大，预留的空间非常足所以不会出现像是在装A4机箱时那种考验走线和装配顺序的技巧问题；而且服务器嘛，安静地塞在某个角落就好了，也不用过于考虑什么美观问题，所以走线就很随意了：
+机箱尺寸比较大，预留的空间非常足所以不会出现像是在装A4机箱时那种考验走线和装配顺序的技巧问题；而且服务器嘛，安静地塞在某个角落就好了，也不用过于考虑什么美观问题，所以走线不用太在意。
 
-![img](assets/v2-05390147346abf17c7bff6b53367f610_720w.webp)
-
-这个机箱设计还是很科学的，预留了足够多的扩展接口比如：2个 3.5寸可快拆盘位、5个2.5寸可快拆盘位、光驱位（用不到，后期改造了）、前后顶部一堆风扇位等等。线材基本都可以塞到机箱的另一个侧面，前面板安装了三个进风风扇，背部安装了一个出风风扇，水冷的冷排和风扇在顶端。
+机箱建议预留足够多的扩展接口比如：2个 3.5寸可快拆盘位、5个2.5寸可快拆盘位、前后顶部一堆风扇位等等。线材基本都可以塞到机箱的另一个侧面，前面板安装了三个进风风扇，背部安装了一个出风风扇，水冷的冷排和风扇在顶端。
 
 ## **2. 系统篇**
 
@@ -66,9 +58,7 @@ date:  2023-04-16 21:00:00 +0900
 
 3. 将U盘插到服务器上，开机按`del键`（具体什么键跟主板型号有关）选择启动项进入临时的Ubuntu系统，在图形界面中选择**Install Ubuntu**，所有配置都可以使用默认的，改一下用户名和密码即可。 这里建议使用英文作为默认语言，省得给自己日后开发找麻烦哈。
 
-![img](assets/v2-a762ee52a96a67fb2fcd3ab32edda3ce_720w.webp)
-
-安装过程中会联网下载一些软件包更新，可以直接点skip掉，在安装好系统之后再手动更新也是一样的。
+安装过程中会联网下载一些软件包更新，可以直接点skip掉，在安装好系统之后再手动更新也是一样的（而且可以换用国内源）。
 
 4. 进入系统后设置一下root账户密码：
 
@@ -208,8 +198,6 @@ sudo apt install ssh
 2. 安装xrdp
 
 Xrdp 是一个微软远程桌面协议（RDP）的开源实现，它允许我们通过图形界面控制远程系统。这里使用RDP而不是VNC作为远程桌面，是因为Windows自带的远程桌面连接软件就可以连接很方便，另外RDP在Windows下的体验非常好，包括速度很快（因为压缩方案做得比较好），可以直接在主机和远程桌面之间复制粘贴等等。
-
-![img](assets/v2-0db7f2c872ffbd2fe4f86caa81f37a26_720w.webp)
 
 > 有的Xwindow软件是不太兼容xrdp的（比如ubuntu 18.04的默认桌面），但是ubuntu 20.04使用的Gnome是完全ok的。
 
@@ -426,19 +414,11 @@ sudo /etc/init.d/samba-ad-dc restart
 
 但是可能会出现无法点开的情况，这里需要在Windows的凭据管理器中添加账户信息（开始菜单里搜索凭据管理器即可打开），点击添加Windows凭据，输入你的服务器名称和账户密码：
 
-![img](assets/v2-3ec12f97d892d60b9a6f07e568ec64f9_720w.webp)
-
-接下来就可以点进去看到服务器上的文件了。 为了更加方便地进行文件交互，我们添加对应的磁盘到Windows资源管理器的此电脑中：
-
-![img](assets/v2-ab65bd0983971c9c23c9f7b98f1b1599_720w.webp)
+接下来就可以点进去看到服务器上的文件了。 为了更加方便地进行文件交互，我们添加（映射网络盘）对应的磁盘到Windows资源管理器的此电脑中。
 
 选择刚刚服务器的网络路径即可添加：
 
-![img](assets/v2-c54912cf0729235850d0f404a769b196_720w.png)
-
-
-
-## **2.7 install chinese input method(pinyin) **
+### **2.7 install chinese input method(pinyin)**
 
 在Linux系统上，常见的输入法框架（Keyboard input method system）有三种：**IBus**（Intelligent Input Bus）、**Fcitx**（FlexibleInput Method Framework）、**XIM**（X Input Method）。在Ubuntu20.04系统中，默认已经安装了IBus和XIM这两种输入法框架，Fcitx需要自己安装。
 
@@ -457,8 +437,6 @@ sudo apt install  fcitx-googlepinyin
 
 在右侧状态栏会多一个键盘的图标，点击图标后，设置输入法，选择google pinyin。
 
-
-
 ## **3. DL开发环境配置篇**
 
 配置这台服务器的主要作用就是做深度学习训练，所以GPU相关的驱动和环境时肯定要安排好的，网上资料很多很杂，这里梳理出了最便捷可靠的安装方法供大家参考~
@@ -468,8 +446,6 @@ sudo apt install  fcitx-googlepinyin
 最简单的方式是通过系统的软件与更新来安装：
 
 1. 进入系统的图形桌面，打开`Software & Updates`软件，可以看到标签栏有一个`Additional Drivers`：
-
-![img](assets/v2-cc2c0c148b22801cc4f4eb901a95879b_720w.webp)
 
 选择第一个安装Nvidia官方驱动（第二个是开源驱动）即可，根据网络情况稍等大概十分钟，安装完重启服务器。
 
@@ -508,10 +484,7 @@ sudo apt upgrade
 
 安装CUDA：
 
-1. 去官网下载cuda安装包：[CUDA Toolkit 11.0 Download | NVIDIA Developer](https://developer.nvidia.com/cuda-11.0-download-archive)，相关选项如下（根据实际情况选择）：
-
-![img](assets/v2-667ab3e5e1f8de904b454bbb56c25b4a_720w.webp)
-
+1. 去官网下载cuda安装包：[CUDA Toolkit 11.0 Download | NVIDIA Developer](https://developer.nvidia.com/cuda-11.0-download-archive)，相关选项如下（根据实际情况选择）。
 1. 运行下面的命令进行安装：
 
 ```text
@@ -519,13 +492,7 @@ chmod +x cuda_11.0.2_450.51.05_linux.run
 sudo sh ./cuda_11.0.2_450.51.05_linux.run
 ```
 
-可能会报一个警告：
-
-![img](assets/v2-ffbf901af98e48003991dc72428a6823_720w.webp)
-
-前面已经卸载过旧版本了直接Continue就好。然后根据提示选择安装选项，注意不要勾选第一个安装显卡驱动的，因为之前已经安装过了。 安装完成后提示
-
-![img](assets/v2-756a4bd5e7b8df867b2afd6190f052b2_720w.webp)
+前面已经卸载过旧版本了直接Continue就好。然后根据提示选择安装选项，注意不要勾选第一个安装显卡驱动的，因为之前已经安装过了。 
 
 2. 根据上图提示需要配置环境变量：
 
@@ -547,9 +514,7 @@ export PATH=${CUDA_HOME}/bin:${PATH}
 source ~/.bashrc
 ```
 
-3. 可以使用命令`nvcc -V`查看安装的版本信息：
-
-![img](assets/v2-e45956e3032e486ee4485830d1e0453f_720w.webp)
+3. 可以使用命令`nvcc -V`查看安装的版本信息。
 
 也可以编译一个程序测试安装是否成功，执行以下几条命令：
 
@@ -581,11 +546,7 @@ sudo apt-get -y install cuda
 
 进入到CUDNN的下载官网：[cuDNN Download | NVIDIA Developer](https://developer.nvidia.com/rdp/cudnn-download)，然点击Download开始选择下载版本，当然在下载之前还有登录，选择版本界面如下：
 
-![img](assets/v2-b39bf69766e2bff31548cd2ccbb6e003_720w.webp)
-
-我们选择和之前cuda版本对应的cudnn版本：
-
-![img](assets/v2-e4c256e6cee42ba18a2c01de6c3798e4_720w.webp)
+我们选择和之前cuda版本对应的cudnn版本。
 
 下载之后是一个压缩包，对它进行解压，命令如下：
 
@@ -606,9 +567,7 @@ sudo apt-get -y install cuda
  cat /usr/local/cuda/include/cudnn_version.h | grep CUDNN_MAJOR -A 2
 ```
 
-可以看到版本信息如下，为`8.0.5`：
-
-![img](assets/v2-61030edf86acd862ac404470b05988c5_720w.png)
+可以看到版本信息如下，为`8.0.5`。
 
 *ps* 或者选择deb文件， 直接安装
 
@@ -630,8 +589,6 @@ chmod +x Anaconda3-2020.11-Linux-x86_64.sh
 一路按ENTER确认，然后根据提示输入yes，这里我为了目录整洁不安装在默认路径，设置为下面的路径：`/home/[user_name]/Softwares/anaconda`
 
 然后会询问你是否要初始化conda，输入yes确认，重开终端窗口之后，就可以看到conda环境可用了（base代表默认环境）：
-
-![img](assets/v2-04f7dfb003d62d7db188bd6cd0188f6c_720w.png)
 
 **conda的使用方法网上搜一下有很多，这里就不赘述了。**
 
@@ -688,8 +645,6 @@ id
 
 
 2. 安装NVIDIA Container Toolkit
-
-![img](assets/v2-d14822f24718d0c322ddf0a42c976c94_720w.png)
 
 官网安装步骤：[NVIDIA/nvidia-docker: Build and run Docker containers leveraging NVIDIA GPUs (github.com)](https://github.com/NVIDIA/nvidia-docker) 或者直接运行下面的命令：
 
@@ -769,8 +724,6 @@ sudo docker run -it --name test_nvidia_docker --gpus all nvidia/cuda:12.1.0-base
 如果看到使用的确实是我们设置的环境目录中的pip的话说明就ok。
 
 接下来在环境中安装pytorch，可以参考官网的安装命令：[Start Locally | PyTorch](https://pytorch.org/get-started/locally/)
-
-![img](assets/v2-81da3503ad421952832b6f9999b5886d_720w.webp)
 
 输入以下命令进行安装：
 
@@ -863,9 +816,7 @@ if __name__ == '__main__':
     main()
 ```
 
-运行脚本，正常的话就可以看到训练输出了：
-
-![img](assets/v2-4111a218ec25aa02b11a05dca561fcd6_720w.webp)
+运行脚本，正常的话就可以看到训练输出了。
 
 ### **2. Docker环境方式：**
 
