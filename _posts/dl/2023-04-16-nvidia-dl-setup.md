@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Ubuntu 22.04深度学习开发环境配置（NVIDIA RTX）
+title: Ubuntu深度学习开发环境配置（NVIDIA RTX）
 categories: []
 tags: [nvidia, rtx,cuda]
 description: nvidia cuda dl 开发环境
@@ -52,9 +52,7 @@ date:  2023-04-16 21:00:00 +0900
 ### **2.1 安装Ubuntu 20.04/22.04系统**
 
 1. 在官网下载Ubuntu镜像：[Ubuntu 20.04.1 LTS (Focal Fossa)](https://link.zhihu.com/?target=http%3A//releases.ubuntu.com/20.04/)，选择**Desktop Image**版本，得到.iso的镜像文件。
-2. Windows下使用UltraISO工具打开.iso镜像文件，并将其写入到一个U盘，得到系统启动盘：
-
-![img](assets/v2-e855db3eae9e9598ce5bb85e3342918d_720w.webp)
+2. Windows下使用UltraISO工具打开.iso镜像文件，并将其写入到一个U盘，得到系统启动盘。
 
 3. 将U盘插到服务器上，开机按`del键`（具体什么键跟主板型号有关）选择启动项进入临时的Ubuntu系统，在图形界面中选择**Install Ubuntu**，所有配置都可以使用默认的，改一下用户名和密码即可。 这里建议使用英文作为默认语言，省得给自己日后开发找麻烦哈。
 
@@ -408,9 +406,7 @@ sudo smbpasswd -a pi
 sudo /etc/init.d/samba-ad-dc restart
 ```
 
-接下来可以在Windows的网络中发现设备了：
-
-![img](assets/v2-3fd60419ccba18023a1d25f221089bd1_720w.webp)
+接下来可以在Windows的网络中发现该设备了。
 
 但是可能会出现无法点开的情况，这里需要在Windows的凭据管理器中添加账户信息（开始菜单里搜索凭据管理器即可打开），点击添加Windows凭据，输入你的服务器名称和账户密码：
 
