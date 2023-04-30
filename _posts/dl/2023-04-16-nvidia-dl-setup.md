@@ -476,7 +476,7 @@ sudo apt upgrade
 
 按照前面的方法**重新安装显卡驱动后**，开始安装CUDA
 
-### CUDA 11.0
+#### CUDA 11.0
 
 安装CUDA：
 
@@ -522,9 +522,11 @@ cd ~/Softwares/cuda/NVIDIA_CUDA-11.0_Samples/1_Utilities/deviceQuery
 
 正常的话会有相应输出，打印显卡的信息。
 
-### 安装CUDA 12.0
+#### 安装CUDA 12.0
 
 [CUDA Toolkit 12.0 Download | NVIDIA Developer](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=deb_local)
+
+- Ubuntu 22.04
 
 ```
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
@@ -536,7 +538,20 @@ sudo apt-get update
 sudo apt-get -y install cuda
 ```
 
+- Ubuntu 20.04
 
+
+```
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget https://developer.download.nvidia.com/compute/cuda/12.1.1/local_installers/cuda-repo-ubuntu2004-12-1-local_12.1.1-530.30.02-1_amd64.deb
+sudo dpkg -i cuda-repo-ubuntu2004-12-1-local_12.1.1-530.30.02-1_amd64.deb
+sudo cp /var/cuda-repo-ubuntu2004-12-1-local/cuda-*-keyring.gpg /usr/share/keyrings/
+sudo apt-get update
+sudo apt-get -y install cuda
+```
+
+  
 
 ### **3.3 安装CuDNN(注意选择匹配cuda的版本）**
 
