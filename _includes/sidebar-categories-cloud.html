@@ -19,7 +19,7 @@
 {% for category in site.categories  %}
   {% assign category_size = category[1].size %}
   {% assign category_name = category[0] %}
-  {% if category_size < 10 %} {% comment %} Add a '0' to the size section if size < 10. {% endcomment %}
+  {% if category_size < 20 %} {% comment %} Add a '0' to the size section if size < 10. {% endcomment %}
 	{% assign categorylist = categorylist | append: "0"|append: category_size|append: ","|append: category_name |append: "@" %}
   {% else %}
   {% assign categorylist = categorylist | append: category_size|append: ","|append: category_name |append: "@" %}
