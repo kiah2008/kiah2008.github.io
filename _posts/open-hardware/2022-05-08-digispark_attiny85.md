@@ -125,13 +125,15 @@ Second, download and install ATtiny85 module driver by Digistump:
 
 https://github.com/digistump/DigistumpArduino/releases
 
+after you finish the sketch, you can click the download button.
+
+once it suggest to plugging in the board, do plugin the tiny board into usb hub.
+
+once it finished the flasing, it will print complete message.
+
 
 
 ## Pin Layout
-
-
-
-
 
 ![1651322931423](/images/open-hardware/1651322931423.png)
 
@@ -146,13 +148,9 @@ https://github.com/digistump/DigistumpArduino/releases
 //                           +----+
 ```
 
-
-
-
-
 #  Serial Output
 
-https://www.youtube.com/watch?v=zxmyfiFbo2c&ab_channel=AntonyCartwright
+[Youtube Video guide](https://www.youtube.com/watch?v=zxmyfiFbo2c&ab_channel=AntonyCartwright)
 
 using ftdi to communicate with digispark.
 
@@ -534,7 +532,12 @@ Arduino教程——编写Arduino类库(3) http://www.arduino.cn/thread-31723-1-1
 
 
 
-# Data Sheet
+# Refference
 
  [Atmel-2586-AVR-8-bit-Microcontroller-ATtiny25-ATtiny45-ATtiny85_Datasheet.pdf](Atmel-2586-AVR-8-bit-Microcontroller-ATtiny25-ATtiny45-ATtiny85_Datasheet.pdf) 
 
+Datasheet: [ATTiny 85 Datasheet](http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2586-AVR-8-bit-Microcontroller-ATtiny25-ATtiny45-ATtiny85_Datasheet.pdf) 
+
+Drivers: [drivers](https://objects.githubusercontent.com/github-production-release-asset-2e65be/28220127/e05aa054-9020-11e6-9de6-61504f7ad160?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20230630%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230630T152916Z&X-Amz-Expires=300&X-Amz-Signature=3445f56387a108c51e6c70bc7cd2ce6c0982ce6f564eecba8b9dd7287a8b12e9&X-Amz-SignedHeaders=host&actor_id=4476837&key_id=0&repo_id=28220127&response-content-disposition=attachment%3B%20filename%3DDigistump.Drivers.zip&response-content-type=application%2Foctet-stream) 
+
+Board Manager: [package_digistump_index.json](https://raw.githubusercontent.com/digistump/arduino-boards-index/master/package_digistump_index.json)
