@@ -204,7 +204,7 @@ wget https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-12.3.0/
 
 cost a lot of time, using vpn....
 
-using gcc_path/contrib/download_prerequisites to download extra modules.
+using `gcc_path/contrib/download_prerequisites `to download extra modules.
 
 cost more time, wtf.
 
@@ -241,11 +241,18 @@ lrwxrwxrwx 1 root root       19 Apr 14 16:31 libstdc++.so.6 -> libstdc++.so.6.0.
 -rwxr-xr-x 1 root root 11521888 Apr 14 14:28 libstdc++.so.6.0.30
 ```
 
+using ldconfig to add the dir to lib search path.
 
-
-# run paddlepaddle samples
-
-
+```
+echo /usr/local/lib64/ >> /etc/ld.so.conf.d/stdc++_6.conf
+ldconfig
+ldconfig -v |grep c++
+	libstdc++.so.6 -> libstdc++.so.6.0.30
+	libstdc++.so.6 -> libstdc++.so.6.0.28
+	
+# test python paddle, and no error raise.
+python -c "import paddle"
+```
 
 
 
@@ -304,7 +311,7 @@ help with jupyter lab
 start jupyter
 
 ```
-jupyter lab --port 80 --no-browser --ip 0.0.0.0
+jupyter lab --port 80 --ip 0.0.0.0
 ```
 
 ## generate config for jupyter lab
@@ -318,11 +325,256 @@ override the field in jupyter_lab_config.
 
 pay attention to the below fields:
 
+```
+< c.ExtensionApp.open_browser = False
+---
+> # c.ExtensionApp.open_browser = False
+321c321
+< c.LabServerApp.open_browser = False
+---
+> # c.LabServerApp.open_browser = False
+397c397
+< c.LabApp.open_browser = False
+---
+> # c.LabApp.open_browser = False
+650c650
+< c.ServerApp.allow_credentials = False
+---
+> # c.ServerApp.allow_credentials = False
+667c667
+< c.ServerApp.allow_origin = '*'
+---
+> # c.ServerApp.allow_origin = ''
+698c698
+< c.ServerApp.allow_remote_access = True
+---
+> # c.ServerApp.allow_remote_access = False
+857c857
+< c.ServerApp.ip = '0.0.0.0'
+---
+> # c.ServerApp.ip = 'localhost'
+906c906
+< #c.ServerApp.local_hostnames = ['localhost']
+---
+> # c.ServerApp.local_hostnames = ['localhost']
+965c965
+< # c.ServerApp.password = '' add your passwd if neccessary.
+---
+> # c.ServerApp.password = ''
+969c969
+< c.ServerApp.password_required = False
+---
+> # c.ServerApp.password_required = False
+973c973
+< c.ServerApp.port = 80
+---
+> # c.ServerApp.port = 0
+1003c1003
+< c.ServerApp.root_dir = '/home/kian'
+---
+> # c.ServerApp.root_dir = ''
+1059c1059
+```
+
+# run paddlepaddle samples
+
+```
+import paddle
+print(paddle.version.cuda())
+#12.0
+```
+
+```
+from ppdiffusers import StableDiffusionPipeline
+
+# 加载模型
+model_path = "Neolle_Face_Generator"
+pipe = StableDiffusionPipeline.from_pretrained(model_path)
+
+prompt = "Noelle with cat ears, green hair"
+
+# 生成
+image = pipe(prompt, num_inference_steps=50,guidance_scale=10).images[0]
+# 保存
+image.save("test.jpg")
+# 展示图片
+image.show()
+```
+
+
+
+WTF!
+
+```
+Out of memory error on GPU 0. Cannot allocate 1.000000GB memory on GPU 0, 7.084717GB memory has been allocated and available memory is only 716.750000MB.
+```
+
+
+# run chatglm2
+
+```
+from transformers import AutoModel, AutoTokenizer
+import gradio as gr
+import mdtex2html
+
+# add proxy in environments, such as http_proxy, all_proxy
+
+tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
+
+model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).quantize(4).cuda()
+model = model.eval()
+"""Override Chatbot.postprocess"""
+
+
+def postprocess(self, y):
+    if y is None:
+        return []
+    for i, (message, response) in enumerate(y):
+        y[i] = (
+            None if message is None else mdtex2html.convert((message)),
+            None if response is None else mdtex2html.convert(response),
+        )
+    return y
+
+
+gr.Chatbot.postprocess = postprocess
+
+
+def parse_text(text):
+    """copy from https://github.com/GaiZhenbiao/ChuanhuChatGPT/"""
+    lines = text.split("\n")
+    lines = [line for line in lines if line != ""]
+    count = 0
+    for i, line in enumerate(lines):
+        if "```" in line:
+            count += 1
+            items = line.split('`')
+            if count % 2 == 1:
+                lines[i] = f'<pre><code class="language-{items[-1]}">'
+            else:
+                lines[i] = f'<br></code></pre>'
+        else:
+            if i > 0:
+                if count % 2 == 1:
+                    line = line.replace("`", "\`")
+                    line = line.replace("<", "&lt;")
+                    line = line.replace(">", "&gt;")
+                    line = line.replace(" ", "&nbsp;")
+                    line = line.replace("*", "&ast;")
+                    line = line.replace("_", "&lowbar;")
+                    line = line.replace("-", "&#45;")
+                    line = line.replace(".", "&#46;")
+                    line = line.replace("!", "&#33;")
+                    line = line.replace("(", "&#40;")
+                    line = line.replace(")", "&#41;")
+                    line = line.replace("$", "&#36;")
+                lines[i] = "<br>"+line
+    text = "".join(lines)
+    return text
+
+
+def predict(input, chatbot, max_length, top_p, temperature, history, past_key_values):
+    chatbot.append((parse_text(input), ""))
+    for response, history, past_key_values in model.stream_chat(tokenizer, input, history, past_key_values=past_key_values,
+                                                                return_past_key_values=True,
+                                                                max_length=max_length, top_p=top_p,
+                                                                temperature=temperature):
+        chatbot[-1] = (parse_text(input), parse_text(response))
+
+        yield chatbot, history, past_key_values
+
+
+def reset_user_input():
+    return gr.update(value='')
+
+
+def reset_state():
+    return [], [], None
+
+
+with gr.Blocks() as demo:
+    gr.HTML("""<h1 align="center">ChatGLM2-6B</h1>""")
+
+    chatbot = gr.Chatbot()
+    with gr.Row():
+        with gr.Column(scale=4):
+            with gr.Column(scale=12):
+                user_input = gr.Textbox(show_label=False, placeholder="Input...", lines=10).style(
+                    container=False)
+            with gr.Column(min_width=32, scale=1):
+                submitBtn = gr.Button("Submit", variant="primary")
+        with gr.Column(scale=1):
+            emptyBtn = gr.Button("Clear History")
+            max_length = gr.Slider(0, 32768, value=8192, step=1.0, label="Maximum length", interactive=True)
+            top_p = gr.Slider(0, 1, value=0.8, step=0.01, label="Top P", interactive=True)
+            temperature = gr.Slider(0, 1, value=0.95, step=0.01, label="Temperature", interactive=True)
+
+    history = gr.State([])
+    past_key_values = gr.State(None)
+
+    submitBtn.click(predict, [user_input, chatbot, max_length, top_p, temperature, history, past_key_values],
+                    [chatbot, history, past_key_values], show_progress=True)
+    submitBtn.click(reset_user_input, [], [user_input])
+
+    emptyBtn.click(reset_state, outputs=[chatbot, history, past_key_values], show_progress=True)
+
+demo.queue().launch(share=False, inbrowser=True)
+```
 
 
 
 
 
+# setup gpu environment
+
+## install cuda-toolkit
+
+https://developer.nvidia.com/cuda-toolkit-archive
+
+```
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+wget https://developer.download.nvidia.com/compute/cuda/12.2.0/local_installers/cuda-repo-ubuntu2004-12-2-local_12.2.0-535.54.03-1_amd64.deb
+sudo dpkg -i cuda-repo-ubuntu2004-12-2-local_12.2.0-535.54.03-1_amd64.deb
+sudo cp /var/cuda-repo-ubuntu2004-12-2-local/cuda-*-keyring.gpg /usr/share/keyrings/
+sudo apt-get update
+sudo apt-get -y install cuda
+```
+
+## cudnn
+
+https://docs.nvidia.com/deeplearning/cudnn/support-matrix/index.html
+
+[download cudnn](https://developer.nvidia.com/cudnn)
+
+```
+dpkg -i cudnn-local-repo-${distro}-8.9.2.26_amd64.deb
+cp /var/cudnn-local-repo-ubuntu2004-8.9.2.26/cudnn-local-9AE71A4A-keyring.gpg /usr/share/keyrings/
+apt-get update
+apt install libcudnn8
+apt install libcudnn8-dev
+##################
+Get:1 https://developer.download.nvidia.cn/compute/cuda/repos/ubuntu2004/x86_64  libcudnn8 8.9.2.26-1+cuda12.1 [464 MB]
+Fetched 464 MB in 10s (48.5 MB/s)                                                                                                                                                                         
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libcudnn8.
+(Reading database ... 13836 files and directories currently installed.)
+Preparing to unpack .../libcudnn8_8.9.2.26-1+cuda12.1_amd64.deb ...
+```
+
+
+
+## cudnn share library not found
+
+```
+sudo ln -s /usr/lib/x86_64-linux-gnu/libcudnn.so.8 /usr/local/cuda/lib64/libcudnn.so
+```
+
+restart jupyter
+
+
+
+## 
 
 
 
