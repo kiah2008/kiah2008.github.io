@@ -16,24 +16,6 @@
   {% assign diff = 1 %}
 {% endif %}
 
-<!-- {% for tag in site.tags %}
-  {% assign temp = tag[1].size | minus: min | times: 36 | divided_by: diff %}
-  {% assign base = temp | divided_by: 4 %}
-  {% assign remain = temp | modulo: 4 %}
-  {% if remain == 0 %}
-    {% assign size = base | plus: 9 %}
-  {% elsif remain == 1 or remain == 2 %}
-    {% assign size = base | plus: 9 | append: '.5' %}
-  {% else %}
-    {% assign size = base | plus: 10 %}
-  {% endif %}
-  {% if remain == 0 or remain == 1 %}
-    {% assign color = 9 | minus: base %}
-  {% else %}
-    {% assign color = 8 | minus: base %}
-  {% endif %}
-  <a href="{{ site.baseurl }}/tags/#{{ tag[0] }}" style="font-size: {{ size }}pt; color: #{{ color }}{{ color }}{{ color }};">{{ tag | first }}({{ tag[1].size }})</a>
-{% endfor %} -->
 {% for tag in site.tags  %}
   {% assign tag_size = tag[1].size %}
   {% assign tag_name = tag[0] %}
@@ -46,9 +28,7 @@
 {% assign sorted_taglist = taglist | split: "@" |sort|reverse %}
 {% for sorted_tag in sorted_taglist %}
   {% assign sorted_tag_array = sorted_tag | split: "," %}
-  {% if sorted_tag_array[0].size == 2 %}
-	{% assign sorted_tag_size = sorted_tag_array[0] | slice: 1 %}
-  {% endif %}
+  {% assign sorted_tag_size = sorted_tag_array[0] | to_integer %}
 
   {% comment %} calculate font style by num. {% endcomment %}
   {% assign temp = sorted_tag_size | minus: min | times: 36 | divided_by: diff %}

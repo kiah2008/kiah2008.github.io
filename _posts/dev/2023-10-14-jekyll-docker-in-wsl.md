@@ -106,6 +106,10 @@ date:  2023-10-14 14:11:00 +0800
     bundle exec jekyll build && JEKYLL_ENV=development bundle exec jekyll server -H 0.0.0.0 -P 4008 --incremental --watch
     ```
 
+# 其它
+在网上碰到一个主题模板， 感觉挺好的， 有需要的，可以学习借鉴下。
+https://github.com/cotes2020/jekyll-theme-chirpy
+
 # FAQ
 1. Docker的容器中出现时区错误， 可以尝试挂在本地的时区信息
 

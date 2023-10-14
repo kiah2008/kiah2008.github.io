@@ -19,18 +19,22 @@
 {% for category in site.categories  %}
   {% assign category_size = category[1].size %}
   {% assign category_name = category[0] %}
-  {% if category_size < 20 %} {% comment %} Add a '0' to the size section if size < 10. {% endcomment %}
+
+  {% if category_size < 10 %} 
+  {% comment %} Add a '0' to the size section if size < 10. {% endcomment %}
+	{% assign categorylist = categorylist | append: "00"|append: category_size|append: ","|append: category_name |append: "@" %}
+  {% elsif category_size < 100 %} 
+  {% comment %} Add a '0' to the size section if size < 100. {% endcomment %}
 	{% assign categorylist = categorylist | append: "0"|append: category_size|append: ","|append: category_name |append: "@" %}
   {% else %}
   {% assign categorylist = categorylist | append: category_size|append: ","|append: category_name |append: "@" %}
   {% endif %}
 {% endfor %}
+
 {% assign sorted_categorylist = categorylist | split: "@" |sort|reverse %}
 {% for sorted_category in sorted_categorylist %}
   {% assign sorted_category_array = sorted_category | split: "," %}
-  {% if sorted_category_array[0].size == 2 %}
-	{% assign sorted_category_size = sorted_category_array[0] | slice: 1 %}
-  {% endif %}
+  {% assign sorted_category_size = sorted_category_array[0] | to_integer %}
 
   {% comment %} calculate font style by num. {% endcomment %}
   {% assign temp = sorted_category_size | minus: min | times: 36 | divided_by: diff %}

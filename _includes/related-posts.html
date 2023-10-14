@@ -1,0 +1,131 @@
+<!-- Recommend the other 3 posts according to the tags and categories of the current post. -->
+
+<style type="text/css">
+  #related-posts{
+    display: flex;
+    flex-wrap: wrap;
+
+    .card {
+      align-content: flex-start;
+      position: relative;
+      max-width: calc(95% / 3);
+      margin-bottom: 20px;
+      margin-right:10px;
+      padding-right:5px;
+      padding-left:5px;
+      height: 200px;
+
+      /* 设置阴影 */
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      /* 设置card的背景色 */
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      display: flex;
+      border-top: 1px solid rgba(255, 255, 255, 0.5);
+      border-left: 1px solid rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(5px);
+    }
+    .card  a{
+      position: absolute;
+      color: rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+    }
+    .card  p{
+      font-size: 0.8em;
+      color: #505050;
+      font-weight: 300;
+    }
+  }
+  
+</style>
+
+<!-- The total size of related posts -->
+{% assign TOTAL_SIZE = 3 %}
+
+<!-- An random integer that bigger than 0 -->
+{% assign TAG_SCORE = 1 %}
+
+<!-- Equals to TAG_SCORE / {max_categories_hierarchy} -->
+{% assign CATEGORY_SCORE = 0.5 %}
+
+{% assign SEPARATOR = ':' %}
+
+{% assign match_posts = '' | split: '' %}
+
+{% for category in page.categories %}
+  {% assign match_posts = match_posts | push: site.categories[category] | uniq %}
+{% endfor %}
+
+{% for tag in page.tags %}
+  {% assign match_posts = match_posts | push: site.tags[tag] | uniq %}
+{% endfor %}
+
+{% assign last_index = match_posts.size | minus: 1 %}
+{% assign score_list = '' | split: '' %}
+
+{% for i in (0..last_index) %}
+  {% assign post = match_posts[i] %}
+
+  {% if post.url == page.url %}
+    {% continue %}
+  {% endif %}
+
+  {% assign score = 0 %}
+
+  {% for tag in post.tags %}
+    {% if page.tags contains tag %}
+      {% assign score = score | plus: TAG_SCORE %}
+    {% endif %}
+  {% endfor %}
+
+  {% for category in post.categories %}
+    {% if page.categories contains category %}
+      {% assign score = score | plus: CATEGORY_SCORE %}
+    {% endif %}
+  {% endfor %}
+
+  {% if score > 0 %}
+    {% capture score_item %}{{ score }}{{ SEPARATOR }}{{ i }}{% endcapture %}
+    {% assign score_list = score_list | push: score_item %}
+  {% endif %}
+{% endfor %}
+
+{% assign index_list = '' | split: '' %}
+
+{% if score_list.size > 0 %}
+  {% assign score_list = score_list | sort | reverse %}
+  {% for entry in score_list limit: TOTAL_SIZE %}
+    {% assign index = entry | split: SEPARATOR | last %}
+    {% assign index_list = index_list | push: index %}
+  {% endfor %}
+{% endif %}
+
+{% assign relate_posts = '' | split: '' %}
+
+{% for index in index_list %}
+  {% assign i = index | to_integer %}
+  {% assign relate_posts = relate_posts | push: match_posts[i] %}
+{% endfor %}
+
+<div >
+{% if relate_posts.size > 0 %}
+<h3>相关文章</h3>
+  <div  id="related-posts">
+      {% for post in relate_posts %}
+          <a href="{{ post.url | relative_url }}" class="card" >
+            <div >
+              <p>{% include datetime.html date=post.date lang=include.lang %}</p>
+              <h4>  {{ post.title }}</h4>
+              <div class="text-muted">
+                <p>
+                  {% include no-linenos.html content=post.content %}
+                  {{ content | markdownify | strip_html | truncate: 60 | escape }}
+                </p>
+              </div>
+            </div>
+          </a>
+      {% endfor %}
+  </div>
+{% endif %}
+</div>
