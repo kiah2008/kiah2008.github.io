@@ -8,7 +8,7 @@ keywords: opencv, video stitching
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-10-09 23:00:00 +0900
+date:  2022-10-09 23:00:00 +0800
 ---
 
 主要是基于opencv, 学习下图像融合,并延伸到视频融合.

@@ -8,7 +8,7 @@ keywords: cmake, android ndk, c/c++
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-03-10 21:00:00 +0900
+date:  2022-03-10 21:00:00 +0800
 ---
 使用cmake，ndk和vscode进行Android c/c++ 开发.
 

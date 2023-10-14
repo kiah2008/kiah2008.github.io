@@ -7,7 +7,7 @@ keywords: 视音频, 零基础
 dashang: true
 topmost: false
 tags: [video, audio]
-date:  2022-07-06 21:16:00 +0900
+date:  2022-07-06 21:16:00 +0800
 ---
 视音频编解码技术零基础学习方法
 

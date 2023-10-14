@@ -8,7 +8,7 @@ keywords: 音视频入门
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-09-04 23:00:00 +0900
+date:  2022-09-04 23:00:00 +0800
 ---
 
 # 视频播放器原理

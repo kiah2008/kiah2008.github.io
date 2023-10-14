@@ -8,7 +8,7 @@ keywords: digispark, attiny85
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-05-08 21:00:00 +0900
+date:  2022-05-08 21:00:00 +0800
 ---
 attiny85是一个入门的8位单片机, 可以使用digispark库进行开发. 可以实现简单的逻辑控制.
 

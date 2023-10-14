@@ -8,7 +8,7 @@ keywords: java, thread, lock, synchronized
 dashang: true
 topmost: false
 mermaid: true
-date:  2022-09-20 23:00:00 +0900
+date:  2022-09-20 23:00:00 +0800
 ---
 java语言中最常用的同步方法, synchronize.
 

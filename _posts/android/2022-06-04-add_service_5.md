@@ -7,7 +7,7 @@ keywords: android, ServiceManager
 dashang: true
 topmost: false
 tags: [binder, systemservice]
-date:  2022-06-04 21:16:00 +0900
+date:  2022-06-04 21:16:00 +0800
 ---
 
 基于Android 6.0的源码剖析， 本文讲解如何向ServiceManager注册Native层的服务的过程。

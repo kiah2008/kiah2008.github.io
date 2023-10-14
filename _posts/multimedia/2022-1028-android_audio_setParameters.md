@@ -8,7 +8,7 @@ keywords: Android Audio, SetParameters
 dashang: true
 topmost: false
 mermaid: true
-date:  2022-10-01 21:00:00 +0900
+date:  2022-10-01 21:00:00 +0800
 ---
 
 Android Audio 配置参数流程介绍

@@ -7,7 +7,7 @@ keywords: android, rtsp
 dashang: true
 topmost: false
 tags: [linphone, rtsp]
-date:  2022-09-24 21:16:00 +0900
+date:  2022-09-24 21:16:00 +0800
 ---
 
 最近在搞音视频通话, 所以接触到linphone.Linphone是一款开源基于SIP协议的语音视频电话软件，可移植到移动端Android、IOS、WindowsPhone8.

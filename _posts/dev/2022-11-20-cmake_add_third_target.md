@@ -8,7 +8,7 @@ keywords: cmake,依赖管理
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-11-20 10:00:00 +0900
+date:  2022-11-20 10:00:00 +0800
 ---
 现代项目中，越来越多的项目构建使用CMake,而仍有很多项目的构建会使用其它构建方式， 如gnu make等， 因此学会CMake项目中的依赖管理，有助于快速进行项目开发。
 

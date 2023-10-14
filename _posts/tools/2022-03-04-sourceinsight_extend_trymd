@@ -8,7 +8,7 @@ keywords: source insight, license
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-03-04 21:00:00 +0900
+date:  2022-03-04 21:00:00 +0800
 ---
 
 source insight 蛮好用的一个工具,提供个人免费试用,不过时间只有30天. 可以尝试清除data的应用数据,实现延长试用期.

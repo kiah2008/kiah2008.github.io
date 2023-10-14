@@ -5,7 +5,7 @@ categories: web
 tags: [jekyll]
 description: Jekyll和github pages搭建个人博客, 进行自定义域名, SSL和网站加速.
 dashang: true
-date:  2022-09-12 08:00:00 +0900
+date:  2022-09-12 08:00:00 +0800
 keywords: jekyll, github, pages
 ---
 

@@ -8,7 +8,7 @@ keywords: paddlepaddle, aigc, llm, dl
 dashang: true
 topmost: false
 mermaid: false
-date:  2023-06-30 00:36:00 +0900
+date:  2023-06-30 00:36:00 +0800
 ---
 
 using paddlepaddle for aigc and llm

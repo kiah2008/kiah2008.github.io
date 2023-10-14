@@ -7,7 +7,7 @@ keywords: raspberry pi, 视频监控
 dashang: true
 topmost: false
 tags: [RaspberryPi]
-date:  2022-09-25 21:16:00 +0900
+date:  2022-09-25 21:16:00 +0800
 ---
 
 # Using the raspberry pi for video monitoring

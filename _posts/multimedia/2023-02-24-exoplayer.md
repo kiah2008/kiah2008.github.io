@@ -8,7 +8,7 @@ keywords: avsync
 dashang: true
 topmost: false
 mermaid: true
-date:  2023-02-24 23:00:00 +0900
+date:  2023-02-24 23:00:00 +0800
 ---
 本文尝试介绍Android ExoPlayer实现，从中学习音频/视频的相关知识。
 <!-- more -->

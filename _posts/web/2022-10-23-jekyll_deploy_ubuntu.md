@@ -8,7 +8,7 @@ keywords: jekyll, ubuntu
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-10-23 11:00:00 +0900
+date:  2022-10-23 11:00:00 +0800
 ---
 
 Jekyll 在unbuntu上的快速部署

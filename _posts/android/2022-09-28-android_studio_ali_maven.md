@@ -7,7 +7,7 @@ keywords: android studio, maven, ali
 dashang: true
 topmost: false
 tags: [android studio]
-date:  2022-09-28 23:00:00 +0900
+date:  2022-09-28 23:00:00 +0800
 ---
 
 因为国内特殊的网络环境, 在使用android studio的时候,如果依赖库使用默认google maven地址同步就会很慢.

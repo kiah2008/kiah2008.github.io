@@ -8,7 +8,7 @@ keywords: flask, blog, python
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-09-30 16:30:00 +0900
+date:  2022-09-30 16:30:00 +0800
 ---
 
 个人博客网站使用github+jekyll搭建,虽然已经很满意,不过最近想起自己也是学过一段时间的flask,而且jekyll的模板跟样式跟flask很像,应该是可以很容易将jekyll的个人博客复用到flask,搭建一个动态网站,这样可以有更好的扩展性和互动.

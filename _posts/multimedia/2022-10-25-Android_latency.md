@@ -8,7 +8,7 @@ keywords: Android Audio, Latency
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-10-01 21:00:00 +0900
+date:  2022-10-01 21:00:00 +0800
 ---
 
 Android Audio latency讲解

@@ -8,7 +8,7 @@ keywords: nvidia, cuda, deep learning
 dashang: true
 topmost: false
 mermaid: false
-date:  2023-04-16 21:00:00 +0900
+date:  2023-04-16 21:00:00 +0800
 ---
 
 在最近深度学习非常火爆， 尤其是chatgpt问世后，让人一改对AI/人工智能的死板印象。因为平时工作或是兴趣使然，会在Ubuntu学习或是验证下网络模型，所以摘录汇总在ubuntu上搭建深度学习开发环境。

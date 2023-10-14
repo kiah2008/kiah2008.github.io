@@ -8,7 +8,7 @@ keywords: docker
 dashang: true
 topmost: false
 mermaid: true
-date:  2023-04-29 21:46:00 +0900
+date:  2023-04-29 21:46:00 +0800
 ---
 
 Docker是目前比较流行的轻量虚拟化方案，使用 Docker，可以让应用的部署、测试和分发都变得前所未有的高效和轻松！使用 Docker，可以让应用的部署、测试和分发都变得前所未有的高效和轻松！

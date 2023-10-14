@@ -8,7 +8,7 @@ keywords: cuda, ubuntu
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-10-23 14:00:00 +0900
+date:  2022-10-23 14:00:00 +0800
 ---
 
 安裝Nvidia CUDA

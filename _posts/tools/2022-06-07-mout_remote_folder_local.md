@@ -8,7 +8,7 @@ keywords: sshfs
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-06-07 21:00:00 +0900
+date:  2022-06-07 21:00:00 +0800
 ---
 
 introduce how to install and use **SSHFS** client on any Linux distribution to mount remote Linux filesystem or directory on a local Linux machine.

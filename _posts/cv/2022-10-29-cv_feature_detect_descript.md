@@ -8,7 +8,7 @@ keywords: opencv feature detect and compute
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-10-29 21:00:00 +0900
+date:  2022-10-29 21:00:00 +0800
 ---
 
 最近在搞一个实时拼接的任务，会用到CV的特征匹配和单应性矩阵进行全景拼接， 所以总结以下相关知识。

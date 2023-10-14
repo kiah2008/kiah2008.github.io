@@ -5,7 +5,7 @@ categories: web
 tags: [jekyll]
 description: 使用Jekyll+github快速搭建个人网站
 dashang: true
-date:  2022-09-09 21:16:00 +0900
+date:  2022-09-09 21:16:00 +0800
 keywords: jekyll, github, blog
 ---
 
@@ -568,7 +568,7 @@ forloop.last        # => is this the last iteration ?
 | `page.title`      | 页面的标题。                                                 |
 | `page.excerpt`    | 页面摘要的源码。                                             |
 | `page.url`        | 帖子以斜线打头的相对路径，例子： `/2008/12/14/my-post.html`。 |
-| `page.date`       | 帖子的日期。日期的可以在帖子的头信息中通过用以下格式 `YYYY-MM-DD HH:MM:SS` (假设是 UTC), 或者 `YYYY-MM-DD HH:MM:SS +/-TTTT` ( 用于声明不同于 UTC 的时区， 比如 `2008-12-14 10:30:00 +0900`) 来显示声明其他 日期/时间 的方式被改写， |
+| `page.date`       | 帖子的日期。日期的可以在帖子的头信息中通过用以下格式 `YYYY-MM-DD HH:MM:SS` (假设是 UTC), 或者 `YYYY-MM-DD HH:MM:SS +/-TTTT` ( 用于声明不同于 UTC 的时区， 比如 `2008-12-14 10:30:00 +0800`) 来显示声明其他 日期/时间 的方式被改写， |
 | `page.id`         | 帖子的唯一标识码（在RSS源里非常有用），比如 `/2008/12/14/my-post` |
 | `page.categories` | 这个帖子所属的 Categories。Categories 是从这个帖子的 `_posts` 以上 的目录结构中提取的。举例来说, 一个在 `/work/code/_posts/2008-12-24-closures.md` 目录下的 Post，这个属性就会被设置成 `['work', 'code']`。不过 Categories 也能在 [YAML 头文件信息](http://jekyllcn.com/docs/frontmatter/) 中被设置。 |
 | `page.tags`       | 这个 Post 所属的所有 tags。Tags 是在[YAML 头文件信息](http://jekyllcn.com/docs/frontmatter/)中被定义的。 |

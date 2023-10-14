@@ -8,7 +8,7 @@ mermaid: true
 dashang: true
 topmost: false
 tags: [kotlin, android]
-date:  2022-09-24 21:0:00 +0900
+date:  2022-09-24 21:0:00 +0800
 ---
 
 最近看一些开源软件,发现很多高质量的工程已经逐渐使用kotlin重写了. 不去系统学习下kotlin, 可能后续看代码都不太方便了.现在程序员接触的语言太多了,随便想想自己应该看的语言就有kotlin\rust\python\go\R\java\c/c++等.潜意识是不想去学习Kotlin,虽然别人说Kotlin多么多么好, 不过使用Java已经有十几年了,该踩的坑都踩过了.java已经够用,而且没有发现啥问题,也算是自己的舒适区.

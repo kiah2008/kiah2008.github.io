@@ -8,7 +8,7 @@ keywords: jekyll, sort
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-10-09 23:00:00 +0900
+date:  2022-10-09 23:00:00 +0800
 ---
 
 突然心血来潮,觉得需要美化下页面的tag和category.

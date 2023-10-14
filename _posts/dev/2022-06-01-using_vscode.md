@@ -8,7 +8,7 @@ keywords: vscode
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-05-06 21:00:00 +0900
+date:  2022-05-06 21:00:00 +0800
 ---
 vscode环境搭建,快速进行软件开发
 <!-- more -->

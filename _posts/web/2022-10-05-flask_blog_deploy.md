@@ -8,7 +8,7 @@ keywords: flask, blog, 部署
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-10-05 21:00:00 +0900
+date:  2022-10-05 21:00:00 +0800
 ---
 
 主要记录下flask部署的方式

@@ -5,7 +5,7 @@ categories: web
 tags: [jekyll, css]
 description: 介绍jekyll的一些简单技巧,实现个人页面博客的定制.
 dashang: true
-date:  2022-09-20 08:00:00 +0900
+date:  2022-09-20 08:00:00 +0800
 keywords: jekyll, creative, git pages
 ---
 

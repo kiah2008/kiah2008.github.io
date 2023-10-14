@@ -8,7 +8,7 @@ keywords: java, thread, volatile, synchronized
 dashang: true
 topmost: false
 mermaid: true
-date:  2022-09-19 23:00:00 +0900
+date:  2022-09-19 23:00:00 +0800
 ---
 
 在日常的开发工作中, 问题最容易出问题的就是多线程相关的问题, 如时序问题, 共享数据异常等问题.本文旨在总结Java多线程知识点, 以帮助避免陷入多线程陷阱.

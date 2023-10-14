@@ -8,7 +8,7 @@ keywords: sshfs
 dashang: true
 topmost: false
 mermaid: false
-date:  2022-06-07 21:00:00 +0900
+date:  2022-06-07 21:00:00 +0800
 ---
 
 因为国内特别的上网政策(GFW限制),科学上网(FQ)就需要一定的技巧,本文主要记录过程中使用的一些方法.

@@ -7,7 +7,7 @@ keywords: android, mediacodec
 dashang: true
 topmost: false
 tags: [mediacodec, android]
-date:  2022-09-22 8:16:00 +0900
+date:  2022-09-22 8:16:00 +0800
 ---
 [MediaCodec](https://developer.android.com/reference/android/media/MediaCodec)是Android的原生视频编码/解码 API。要在 Android 设备上使用硬件加速进行编码/解码，必须使用 MediaCodec。
 <!-- more -->

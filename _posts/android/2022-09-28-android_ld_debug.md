@@ -7,7 +7,7 @@ keywords: android, ld, linker
 dashang: true
 topmost: false
 tags: [linker]
-date:  2022-09-28 21:16:00 +0900
+date:  2022-09-28 21:16:00 +0800
 ---
 
 在开发Android native库的时候, 时不时会遇到运行过程中因为库加载失败导致运行异常.这种情况下,就需要知道linker是如何查找动态库的.

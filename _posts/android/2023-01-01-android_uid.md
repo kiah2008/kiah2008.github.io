@@ -8,7 +8,7 @@ keywords: android uid
 dashang: true
 topmost: false
 mermaid: false
-date:  2023-01-01 21:00:00 +0900
+date:  2023-01-01 21:00:00 +0800
 ---
 Android 查看各个 app 的 UID 及 sharedUserId 的使用
 
