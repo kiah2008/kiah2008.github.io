@@ -1,9 +1,11 @@
-<h3>分类聚合</h3>
 <div style="border-bottom:10px ">
 {% assign first = site.categories.first %}
 {% assign max = first[1].size %}
 {% assign min = max %}
+{% assign art_total = 0 %}
 {% for category in site.categories offset:1 %}
+  {% assign art_total = art_total | plus: category[1].size %}
+
   {% if category[1].size > max %}
     {% assign max = category[1].size %}
   {% elsif category[1].size < min %}
@@ -15,6 +17,8 @@
 {% if diff == 0 %}
   {% assign diff = 1 %}
 {% endif %}
+
+<h3>分类聚合({{art_total }})</h3>
 
 {% for category in site.categories  %}
   {% assign category_size = category[1].size %}
