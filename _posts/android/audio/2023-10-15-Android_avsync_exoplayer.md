@@ -46,7 +46,9 @@ long earlyUs = bufferPresentationTimeUs - positionUs - elapsedSinceStartOfLoopUs
 // 用当前系统时间加上前面计算出来的时间间隔，即为“预计送显时间” 
 long systemTimeNs = System.nanoTime();
 long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
+
 ```
+
 
 ## 1.2、利用vsync对预计送显时间进行调整
 [adjustReleaseTime](https://sourcegraph.com/github.com/google/ExoPlayer@5df25ae/-/blob/library/core/src/main/java/com/google/android/exoplayer2/video/MediaCodecVideoRenderer.java?L1203:53&popover=pinned)

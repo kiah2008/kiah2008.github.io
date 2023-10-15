@@ -2,7 +2,7 @@
 layout: post
 title: Android性能调试方法
 categories: [android]
-tags: [Performance]
+tags: [performance]
 description: 使用线程优先级, 调试android性能问题
 keywords: performance, thread
 dashang: true

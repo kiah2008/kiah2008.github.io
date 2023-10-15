@@ -2,7 +2,7 @@
 layout: post
 title: 成都不再进行核算检测和健康检查
 categories: [blog]
-tags: [随说]
+tags: [misc talking]
 description: 成都群体免疫
 keywords: 成都群体免疫
 dashang: true
