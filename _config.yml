@@ -192,7 +192,7 @@ baidu:
 open_cdn:
   jquery: https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js
   jquery_ui: https://libs.baidu.com/jqueryui/1.8.22/jquery-ui.min.js
-  pusuanzi: https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js
+  pusuanzi: https://cdn.jsdelivr.net/gh/sukkaw/busuanzi@2.3/bsz.pure.mini.js
   mermaid: https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js
   simple_jekyll_search: https://cdn.bootcdn.net/ajax/libs/simple-jekyll-search/1.9.2/simple-jekyll-search.min.js
   geopattern: https://cdn.bootcdn.net/ajax/libs/geopattern/1.2.3/js/geopattern.min.js

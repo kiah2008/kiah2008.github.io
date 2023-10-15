@@ -1,0 +1,7 @@
+User-agent: *                     # 指定Agent
+Disallow: /assets/                # 禁止目录，需要以/结尾，常规资源目录
+Disallow: /targer_file.extension  # 禁止文件
+Disallow: /blog/
+
+
+Sitemap: http://invoai.top/sitemap.xml

@@ -1,9 +1,37 @@
 - name: kiah's daily
-  url: http://techyself.com
+  url: https://invoai.com
   src: life
 
 - name: Lei Xiaohua-音视频博客
   url: https://leixiaohua1020.github.io/
+  src: technical
+
+- name: Android Performance
+  url: https://gracker.github.io/2018/05/07/Android-performance-optimization-skills-and-tools/
+  src: technical
+
+- name: Gityuan.com
+  url: http://gityuan.com
+  src: technical
+
+- name: weishu
+  url: tiann.github.io
+  src: technical
+
+- name: 任玉刚
+  url: https://blog.csdn.net/singwhatiwanna
+  src: technical
+
+- name: 释然小师弟
+  url: https://juejin.cn/user/2066737589129032/posts
+  src: technical
+
+- name: 字节跳动
+  url: https://juejin.cn/user/1838039172387262/posts
+  src: technical
+
+- name: 芦半山
+  url: https://juejin.cn/user/149189312913511/posts
   src: technical
 
 - name: Java全栈知识-Java开发知识汇总

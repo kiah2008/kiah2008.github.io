@@ -1,43 +1,64 @@
-对于此前没有看过ExoPlayer的朋友，我们在这里先用下面的时序图简单介绍一下ExoPlayer在音视频同步这块的基本流程： ![这里写图片描述](/home/kiah/worktmp/kiah2008.github.io/_drafts/audio/2022-10-25-Android_avsync_exoplayer.assets/26a2c8e248cc4b47a39c480ba3487504tplv-k3u1fbpfcp-zoom-in-crop-mark4536000.png)
+---
+layout: post
+title: Exoplayer的音画同步学习
+categories: [android]
+tags: [audio, avsync]
+description: exoplayer的音画同步
+keywords: avsync in exoplayer
+dashang: true
+topmost: false
+mermaid: false
+date:  2023-10-15 17:22:00 +0800
+---
 
-图中 ExoPlayerImplInternal是Exoplayer的主loop所在处，这个大loop不停的循环运转，将下载、解封装的数据送给AudioTrack和MediaCodec去播放。 MediaCodecAudioRenderer和MediaCodecVideoRenderer分别是处理音频和视频数据的类，在MediaCodecAudioRenderer中会调用AudioTrack的write方法，写入音频数据，同时还会调用AudioTrack的getTimeStamp、getPlaybackHeadPosition、getLantency方法来获得“Audio当前播放的时间”。在MediaCodecVideoRenderer中会调用MediaCodec的几个关键API，例如通过调用releaseOutputBuffer方法来将视频帧送显。在MediaCodecVideoRenderer类中，会依据avsync逻辑调整视频帧的pts，并且控制着丢帧的逻辑。 VideoFrameReleaseTimeHelper可以获取系统的vsync时间和间隔，并且利用vsync信号调整视频帧的送显时间。
+有过开发音视频的朋友们应该是对音画同步多少都有了解， 本文主要是看一下ExoPlayer是如何在Android上实现音画同步的。透过ExoPlayer的学习， 了解Android框架对于音视频都提供了哪些便利。
+
+<!-- more -->
+
+* TOC
+{:toc}
+
+
+对于此前没有看过ExoPlayer的朋友，我们在这里先用下面的时序图简单介绍一下ExoPlayer在音视频同步这块的基本流程： 
+
+![exoplayer loops](/images/audio/2023-10-15-avsync-exoplayer.png)
+
+图中 ExoPlayerImplInternal是Exoplayer的主loop所在处，这个大loop不停的循环运转，将下载、解封装的数据送给AudioTrack和MediaCodec去播放。 MediaCodecAudioRenderer和MediaCodecVideoRenderer分别是处理音频和视频数据的类，在MediaCodecAudioRenderer中会调用AudioTrack的write方法，写入音频数据，同时还会调用AudioTrack的getTimeStamp、getPlaybackHeadPosition、getLantency方法来获得“Audio当前播放的时间”。在MediaCodecVideoRenderer中会调用MediaCodec的几个关键API，例如通过调用releaseOutputBuffer方法来将视频帧送显。
+
+在MediaCodecVideoRenderer类中，会依据avsync逻辑调整视频帧的pts，并且控制着丢帧的逻辑。 *VideoFrameReleaseTimeHelper*可以获取系统的vsync时间和间隔，并且利用vsync信号调整视频帧的送显时间。
 
 下面我会先简要的介绍ExoPlayer avsync逻辑中的关键点，最后再进行详细的代码分析。
 
-# Video部分
+# 1. Video部分
 
-## 1.利用pts和系统时间计算预计送显时间（视频帧应该在这个时间点显示）
+## 1.1、利用pts和系统时间计算预计送显时间（视频帧应该在这个时间点显示）
+[MediaCodecVideoRenderer#processOutputBuffer](https://sourcegraph.com/github.com/google/ExoPlayer/-/blob/library/core/src/main/java/com/google/android/exoplayer2/video/MediaCodecVideoRenderer.java?L1121:21&popover=pinned)
 
-```ini
-MediaCodecVideoRenderer#processOutputBuffer
-
+```java
 //计算 “当前帧的pts(bufferPresentationTimeUs )” 与“Audio当前播放时间(positionUs )”之间的时间间隔，
 //最后还减去了一个elapsedSinceStartOfLoopUs的值，代表的是程序运行到此处的耗时，
 //减去这个值可以看做一种使计算值更精准的做法
-  long elapsedSinceStartOfLoopUs = (SystemClock.elapsedRealtime() * 1000) - elapsedRealtimeUs;
-  earlyUs = bufferPresentationTimeUs - positionUs - elapsedSinceStartOfLoopUs;
- // Compute the buffer's desired release time in nanoseconds.
- // 用当前系统时间加上前面计算出来的时间间隔，即为“预计送显时间” 
-  long systemTimeNs = System.nanoTime();
-  long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
-
+long elapsedSinceStartOfLoopUs = (SystemClock.elapsedRealtime() * 1000) - elapsedRealtimeUs;
+// 计算播放器播放位置和渲染时间差值，注意播放速度， earlyUs=(playbackUs-positionUs)/playbackSpeed
+// 负值的话，表示出现延迟， 如果延迟超过30ms， 则启动强制渲染。
+long earlyUs = bufferPresentationTimeUs - positionUs - elapsedSinceStartOfLoopUs;
+// Compute the buffer's desired release time in nanoseconds.
+// 用当前系统时间加上前面计算出来的时间间隔，即为“预计送显时间” 
+long systemTimeNs = System.nanoTime();
+long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
 ```
 
-## 2、利用vsync对预计送显时间进行调整
+## 1.2、利用vsync对预计送显时间进行调整
+[adjustReleaseTime](https://sourcegraph.com/github.com/google/ExoPlayer@5df25ae/-/blob/library/core/src/main/java/com/google/android/exoplayer2/video/MediaCodecVideoRenderer.java?L1203:53&popover=pinned)
 
-```ini
-MediaCodecVideoRenderer#processOutputBuffer
-
+```java
 long adjustedReleaseTimeNs = frameReleaseTimeHelper.adjustReleaseTime(
       bufferPresentationTimeUs, unadjustedFrameReleaseTimeNs);
 ```
 
 adjustReleaseTime方法里面干了几件事：
-
 a.计算ns级别的平均帧间隔时间，因为vsync的精度是ns
-
 b.寻找距离当前送显时间点（unadjustedFrameReleaseTimeNs）最近(可能是在送显时间点之前，也可能是在送显时间点之后)的vsync时间点，我们的目标是在这个vsync时间点让视频帧显示出去
-
 c.上面计算出的是我们的目标vsync显示时间，但是要提前送，给后面的显示流程以时间，所以再减去一个vsyncOffsetNs时间，这个时间是写死的，定义为.8*vsyncDuration，减完之后的这个值就是真正给MediaCodec.releaseOutputBuffer方法的时间戳
 
 这里其实有问题：
@@ -98,35 +119,35 @@ c.上面计算出的是我们的目标vsync显示时间，但是要提前送，�
     public final void releaseOutputBuffer(int index, long renderTimestampNs)
 ```
 
-## 3、丢帧和送显
+## 1.3、丢帧和送显
 
-```scss
-MediaCodecVideoRenderer#processOutputBuffer
-    //计算实际送显时间与当前系统时间之间的时间差
-    earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
-    //将上面计算出来的时间差与预设的门限值进行对比
-    if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
-      dropOutputBuffer(codec, bufferIndex);
-      return true;
-    }
-    …
-     if (earlyUs < 50000) {
-         //视频帧来的太晚会被丢掉, 来的太早则先不予显示，进入下次loop，再行判断 
-         renderOutputBufferV21(codec, bufferIndex, adjustedReleaseTimeNs);
+```java
+//MediaCodecVideoRenderer#processOutputBuffer
+  //计算实际送显时间与当前系统时间之间的时间差
+  earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
+  //将上面计算出来的时间差与预设的门限值进行对比
+  if (shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs)) {
+    dropOutputBuffer(codec, bufferIndex);
+    return true;
+  }
+  …
+  if (earlyUs < 50000) {
+      //视频帧来的太晚会被丢掉, 来的太早则先不予显示，进入下次loop，再行判断 
+      renderOutputBufferV21(codec, bufferIndex, adjustedReleaseTimeNs);
 
 ```
 
 如果earlyUs 时间差为正值，代表视频帧应该在当前系统时间之后被显示，换言之，代表视频帧来早了，反之，如果时间差为负值，代表视频帧应该在当前系统时间之前被显示，换言之，代表视频帧来晚了。如果超过一定的门限值，即该视频帧来的太晚了，则将这一帧丢掉，不予显示。按照预设的门限值，视频帧比预定时间来的早了50ms以上，则进入下一个间隔为10ms的循环，再继续判断，否则，将视频帧送显。
 
-## 小结
+## 1.4 小结
 
 1.我们平时一般理解avsync就是比较audio pts和video pts，也就是比较码流层面的“播放”时间，来早了就等，来晚了就丢帧，但为了更精确地计算这个差值，exoplayer里面一方面统计了函数调用的一些耗时，一方面实际上是在比较系统时间和当前视频帧的送显时间来判断要不要丢帧，也就是脱离了码流层面
 
 2.既然牵涉到实际送显时间的计算，就需要将播放时间映射到vsync时间上，也就有了cloestVsync的计算，也有了提前80% vsync信号间隔时间送显的做法，同时因为vsync信号时间的精度为ns，为了更好匹配这一精度，而没有直接用ms精度的码流pts值，而是另外计算了ns级别的视频帧间隔时间
 
-# Audio部分
+# 2.0 Audio部分
 
-## 1.1.get current play time – 使用AudioTrack.getTimeStamp方法
+## 2.1、get current play time – 使用AudioTrack.getTimeStamp方法
 
 ```java
 AudioTrack#getCurrentPositionUs(boolean sourceEnded)
@@ -136,7 +157,7 @@ positionUs = framesToDurationUs(AudioTimestamp.framePosition)
 
 对getTimeStamp方法的调用是以500ms为间隔的，所以AudioTimestamp.nanoTime是上次调用时拿到的结果，systemClockUs – AudioTimestamp.nanoTime得到的就是距离上次调用所经过的系统时间，framesToDurationUs(AudioTimestamp.framePosition)代表的是上次调用时获取到的“Audio当前播放的时间”，二者相加即为当前系统时间下的“Audio当前播放的时间” , 为什么要以500ms为间隔调用getTimeStamp方法？参见API注释，如下
 
-```scss
+```java
 	/**
     * Poll for a timestamp on demand.
     * <p>
@@ -181,7 +202,7 @@ positionUs = framesToDurationUs(AudioTimestamp.framePosition)
     public boolean getTimestamp(AudioTimestamp timestamp)
 ```
 
-## 1.2.get current play time – 使用AudioTrack.getPlaybackHeadPosition方法
+## 2.2、get current play time – 使用AudioTrack.getPlaybackHeadPosition方法
 
 ```java
 AudioTrack#getCurrentPositionUs(boolean sourceEnded)
@@ -195,7 +216,7 @@ positionUs -= latencyUs ;
 
 上式中i最大取10，因为getPlayheadPositionUs的精度不足以用来做音视频同步，所以这里通过计算每次getPlayheadPositionUs拿到的值与系统时钟的offset，并且取平均值，来解决精度不足的问题，平滑后的值即为smoothedPlayheadOffsetUs，再加上系统时钟即为“Audio当前播放的时间”。当然，最后要减去通过AudioTrack.getLatency方法获取到的底层delay值，才是最终的结果。
 
-## 小结
+## 2.3、小结
 
 总体来说，音视频同步机制中的同步基准有两种选择：利用系统时间或audio playback position. 如果是video only的流，则利用系统时间，这方面比较简单，不再赘述 
 
@@ -207,11 +228,11 @@ b.计算positionUs值则有两个方法, 根据设备支持情况来选择:
 
 ​	b.2. 用audioTrack.getPlaybackHeadPosition方法来计算, 但是因为这个值的粒度只有20ms, 可能存在一些抖动, 所以做了一些平滑处理, 对应的逻辑可以化简为: positionUs = systemClockUs + smoothedPlayheadOffsetUs - latencyUs = systemClockUs + avg[playbackPositionUs(i) - systemClock(i)] - latencyUs = systemClockUs + avg[(audioTrack.getPlaybackHeadPosition/sampleRate)(i) -systemClock(i)] - latencyUs
 
-# ExoPlayer avsync逻辑代码精读
+# 3. ExoPlayer avsync逻辑代码精读
 
 还是一样，先来看video部分，avsync逻辑的入口在下面的方法
 
-## 1. com.google.android.exoplayer2.video.MediaCodecVideoRenderer#processOutputBuffer
+## 3.1、 com.google.android.exoplayer2.video.MediaCodecVideoRenderer#processOutputBuffer
 
 ```java
 //com.google.android.exoplayer2.video.MediaCodecVideoRenderer#processOutputBuffer
@@ -257,7 +278,7 @@ earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 }
 ```
 
-## 1.1
+## 3.1、
 
 调整送显时间的逻辑如下
 
@@ -343,11 +364,11 @@ public long adjustReleaseTime(long framePresentationTimeUs, long unadjustedRelea
 }
 ```
 
-## 1.1.1
+## 3.2
 
 寻找距离当前送显时间最近的vsync时间点的方法如下:
 
-```ini
+```java
 com.google.android.exoplayer2.video.VideoFrameReleaseTimeHelper#closestVsync
 private static long closestVsync(long releaseTime, long sampledVsyncTime, long vsyncDuration) {
  long vsyncCount = (releaseTime - sampledVsyncTime) / vsyncDuration;
@@ -372,11 +393,11 @@ private static long closestVsync(long releaseTime, long sampledVsyncTime, long v
 
 ```
 
-## 1.1.2
+## 3.3
 
 判断视频帧的pts距离他的送显时间是否有过大的偏移量
 
-```arduino
+```java
 com.google.android.exoplayer2.video.VideoFrameReleaseTimeHelper#isDriftTooLarge
 private boolean isDriftTooLarge(long frameTimeNs, long releaseTimeNs) {
 //如果视频帧的pts和他的送显时间之间差了20ms以上,就认为偏移过大,也就认为失去sync了
@@ -389,7 +410,7 @@ private boolean isDriftTooLarge(long frameTimeNs, long releaseTimeNs) {
 
 ```
 
-## 1.2
+## 3.4
 
 判断丢帧的逻辑如下:
 
@@ -413,11 +434,11 @@ protected boolean shouldDropOutputBuffer(long earlyUs, long elapsedRealtimeUs) {
 
 ```
 
-## 1.3
+## 3.5
 
 进行丢帧的逻辑如下:
 
-```ini
+```java
 com.google.android.exoplayer2.video.MediaCodecVideoRenderer#dropOutputBuffer
 private void dropOutputBuffer(MediaCodec codec, int bufferIndex) {
   TraceUtil.beginSection("dropVideoBuffer");
@@ -437,11 +458,11 @@ private void dropOutputBuffer(MediaCodec codec, int bufferIndex) {
 
 ```
 
-## 1.4
+## 3.6
 
 送显的地方如下:
 
-```ini
+```java
 com.google.android.exoplayer2.video.MediaCodecVideoRenderer#renderOutputBufferV21
 private void renderOutputBufferV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
   maybeNotifyVideoSizeChanged();
@@ -502,7 +523,7 @@ public final void releaseOutputBuffer(int index, long renderTimestampNs)
 
 ## 2
 
-```csharp
+```java
 com.google.android.exoplayer2.ExoPlayerImplInternal#updatePlaybackPositions
 private void updatePlaybackPositions() throws ExoPlaybackException {
   ...
@@ -528,7 +549,7 @@ private void updatePlaybackPositions() throws ExoPlaybackException {
 
 ## 2.1
 
-```ini
+```java
 com.google.android.exoplayer2.util.StandaloneMediaClock#getPositionUs
 public long getPositionUs() {
   long positionUs = baseUs;
@@ -551,7 +572,7 @@ public long getPositionUs() {
 
 setPosition方法可以看做专用于更新baseUs和baseElapsedMs的方法, 他会在两种情况下被调用: 第一种情况下他只会被调用一次, 也就是在播放刚开始的时候, 前提是所使用的render没有实现getPostionUs方法(这种情况在exoplayer里面实际上并不会出现). 对于这种情况, 在2.1中的计算就比较好理解了. 而第二种情况是在使用audio playback position作为render时间的前提下, 每次都会在 updatePlaybackPositions 中调用 setPosition方法, 传入参数则为audio playback position, 也就是保持和audio playback position对齐
 
-```ini
+```java
 com.google.android.exoplayer2.util.StandaloneMediaClock#setPositionUs
 public void setPositionUs(long positionUs) {
   baseUs = positionUs;
@@ -567,7 +588,7 @@ public void setPositionUs(long positionUs) {
 
 看完简单的方法, 接下来我们来看如何通过audio playback时间计算render时间
 
-```ini
+```java
 com.google.android.exoplayer2.audio.MediaCodecAudioRenderer#getPositionUs
 public long getPositionUs() {
   long newCurrentPositionUs = audioTrack.getCurrentPositionUs(isEnded());
@@ -648,7 +669,7 @@ public long getCurrentPositionUs(boolean sourceEnded) {
 
 maybeSampleSyncParams是一个比较关键的方法, 包含了playback position的平滑,TimeStamp的获取,和Latency的获取
 
-```csharp
+```java
 com.google.android.exoplayer2.audio.AudioTrack#maybeSampleSyncParams
 /**
  * Updates the audio track latency and playback position parameters.
@@ -746,7 +767,7 @@ private void maybeSampleSyncParams() {
 
 计算bufferSizeUs
 
-```ini
+```java
 public void configure(String mimeType, int channelCount, int sampleRate,
     @C.PcmEncoding int pcmEncoding, int specifiedBufferSize, int[] outputChannels){
 …
@@ -923,7 +944,7 @@ frameworks/av/services/audioflinger/Tracks.cpp binder调过来的 ![这里写图
 
 如果走了getPlaybackPosition通路, 调用的是下面的方法
 
-```csharp
+```java
 com.google.android.exoplayer2.audio.AudioTrack.AudioTrackUtil#getPositionUs
 /**
  * Returns the duration of played media since reconfiguration, in microseconds.
@@ -937,7 +958,7 @@ public long getPositionUs() {
 
 利用下面方法的返回值进行计算
 
-```csharp
+```java
 com.google.android.exoplayer2.audio.AudioTrack.AudioTrackUtil#getPlaybackHeadPosition
 /**
  * {@link android.media.AudioTrack#getPlaybackHeadPosition()} returns a value intended to be
@@ -978,13 +999,11 @@ android.media.AudioTrack#getPlaybackHeadPosition
  * <i>not</i> the current offset within the buffer.
  */
 public int getPlaybackHeadPosition() 
-
-
 ```
 
 它返回的是AudioFlinger里面的共享内存的位置，跟一下framework里面的实现如下 /frameworks/av/media/libmedia/AudioTrack.cpp
 
-```arduino
+```c++
 status_t AudioTrack::getPosition(uint32_t *position)
 {
     if (position == NULL) {
@@ -1005,7 +1024,7 @@ status_t AudioTrack::getPosition(uint32_t *position)
         *position = (mState == STATE_STOPPED || mState == STATE_FLUSHED) ?
                 0 : updateAndGetPosition_l();
     }
-．．．．
+//．．．．
 uint32_t AudioTrack::updateAndGetPosition_l()
 {
     // This is the sole place to read server consumed frames
@@ -1026,7 +1045,7 @@ uint32_t AudioTrack::updateAndGetPosition_l()
     }
     return mPosition += (uint32_t) delta;
 }
- /frameworks/av/include/private/media/AudioTrackShared.h
+ //frameworks/av/include/private/media/AudioTrackShared.h
 // Proxy used by AudioTrack client, which also includes AudioFlinger::PlaybackThread::OutputTrack
 class AudioTrackClientProxy : public ClientProxy 
 
@@ -1058,7 +1077,7 @@ uint32_t    mServer;    // Number of filled frames consumed by server (mIsOut),
 
 如果走了getPlaybackPosition通路,还要在position基础上减去latency
 
-```csharp
+```java
 android.media.AudioTrack#getLatency
 /**
  * Returns this track's estimated latency in milliseconds. This includes the latency due
@@ -1082,7 +1101,7 @@ public int getLatency() {
 
 在handleBuffer中计算startMediaTimeUs, 在他的基础上再加上postionUs
 
-```ini
+```java
 com.google.android.exoplayer2.audio.AudioTrack#handleBuffer
 public boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
     throws InitializationException, WriteException {

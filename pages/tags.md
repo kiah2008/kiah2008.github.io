@@ -10,7 +10,7 @@ permalink: /tags/
 
 <section class="container posts-content">
 {% if site.tags %}
-    {% assign sorted_tags = site.tags | sort %}
+    {% assign sorted_tags = site.tags |sort %}
     {% for tag in sorted_tags %}
         <h3 id="{{ tag[0] }}">{{ tag | first }}</h3>
         <ol class="posts-list">
