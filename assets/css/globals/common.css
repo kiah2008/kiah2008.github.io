@@ -199,7 +199,9 @@
 
 .site-footer-links {
     margin: 0;
-    list-style: none
+    list-style: none;
+    display:flex;
+    justify-content: center;
 }
 
 .site-footer-links li {
