@@ -13,6 +13,8 @@ date:  2022-05-08 21:00:00 +0800
 attiny85是一个入门的8位单片机, 可以使用digispark库进行开发. 可以实现简单的逻辑控制.
 
 <!-- more -->
+![image](https://github.com/kiah2008/kiah2008.github.io/assets/4476837/a942e9e6-fec3-49fd-831d-8aa93bdedc67)
+
 # Features
 
 • **High Performance, Low Power AVR**® **8-Bit Microcontroller** 
@@ -131,6 +133,18 @@ once it suggest to plugging in the board, do plugin the tiny board into usb hub.
 
 once it finished the flasing, it will print complete message.
 
+## prepare
+Digispark ATtiny 85
+
+Arduino IDE 1.8.4 (parrot 中的ide是2.x版本的没有Board Manager)
+
+    https://www.arduino.cc/en/Main/Software
+
+Digispark驱动程序 (Windows)
+
+    https://github.com/digistump/DigistumpArduino/releases
+
+    
 
 
 ## Pin Layout
@@ -147,6 +161,43 @@ once it finished the flasing, it will print complete message.
 //                     GND  4|    |5   PB0  (D  0)        pwm0
 //                           +----+
 ```
+## Setup
+打开 文件->首选项
+
+把这个网址添加到附加开发板管理网址
+
+https://raw.githubusercontent.com/digistump/arduino-boards-index/master/package_digistump_index.json
+
+
+
+点击确定(好)
+
+然后打开开发板管理器
+
+
+
+这时会自动更新一些东西，建议挂上代理，不然很慢
+
+在Arduino中添加Digispark的支持
+等待开发板管理器加载完成，搜索digistump并安装第一个
+Digistump AVR Boards
+
+
+
+等待安装完成,完成后会有绿色表示
+
+
+
+安装Windows下的驱动
+打开上面的链接,下载
+Digistump.Drivers
+
+
+
+解压后执行
+Install Drivers.exe
+即可
+
 
 #  Serial Output
 
