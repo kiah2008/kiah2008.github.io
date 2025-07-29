@@ -7,8 +7,8 @@
         <mxCell id="8sPV7gZuIy4KroBz0GCG-1" value="https://mp.weixin.qq.com/s/M_E89uEPkWrMRBan1kF8AQ" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="10" y="30" width="340" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="8sPV7gZuIy4KroBz0GCG-2" value="&lt;span style=&quot;color: rgba(0, 0, 0, 0.9); font-family: &amp;quot;PingFang SC&amp;quot;, system-ui, -apple-system, BlinkMacSystemFont, &amp;quot;Helvetica Neue&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Microsoft YaHei UI&amp;quot;, &amp;quot;Microsoft YaHei&amp;quot;, Arial, sans-serif; font-size: 15px; letter-spacing: 1px; text-wrap: wrap; background-color: rgb(255, 255, 255);&quot;&gt;搜索是用户对其感兴趣或需求进行主动探索的行为，搜索数据中不仅包含大量的有用query，还有用户点击等行为作为搜索结果的反馈，是一路优良的内容理解信号。&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="51" y="250" width="1190" height="30" as="geometry" />
+        <mxCell id="8sPV7gZuIy4KroBz0GCG-3" value="&lt;span style=&quot;color: rgba(0, 0, 0, 0.9); font-family: &amp;quot;PingFang SC&amp;quot;, system-ui, -apple-system, BlinkMacSystemFont, &amp;quot;Helvetica Neue&amp;quot;, &amp;quot;Hiragino Sans GB&amp;quot;, &amp;quot;Microsoft YaHei UI&amp;quot;, &amp;quot;Microsoft YaHei&amp;quot;, Arial, sans-serif; font-size: 15px; letter-spacing: 1px; background-color: rgb(255, 255, 255);&quot;&gt;搜索是用户对其感兴趣或需求进行主动探索的行为，搜索数据中不仅包含大量的有用query，还有用户点击等行为作为搜索结果的反馈，是一路优良的内容理解信号。&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="90" width="430" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
